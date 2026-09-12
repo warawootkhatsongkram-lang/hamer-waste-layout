@@ -1,0 +1,20 @@
+# กันไฟล์ส่วนตัว/ภายในหลุดขึ้น repo สาธารณะ
+CLAUDE.md
+MEMORY.md
+spec.md
+*.docx
+*.xlsx
+*.doc
+*.xls
+README-อ่านก่อนเริ่ม.md
+New Text Document.txt
+
+# ข้อมูลสำรองจุดวางถังที่ export ออกมา (เป็นข้อมูลภายในโรงงาน)
+hamer-waste-layout-*.json
+
+# ระบบปฏิบัติการ / เอดิเตอร์
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
