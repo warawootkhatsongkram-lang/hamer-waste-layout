@@ -1,0 +1,2395 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ผังจุดวางถังขยะแยกประเภท — โรงงาน HAMER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Noto+Serif+Thai:wght@500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   1. VARIABLES — ธีมจาก "ธีม-สี.docx" (สุ่มสีจริงจากภาพในเอกสาร)
+   Navy #10263C / #112840 · Copper #E0825A · Gold #8E6B43 · Cream #E6E8EB
+   ══════════════════════════════════════════════════════════════ */
+:root{
+  --navy-950:#08121F; --navy-900:#0B1B2E; --navy-850:#0F243D; --navy-800:#10263C;
+  --navy-750:#112840; --navy-700:#142E48; --navy-600:#1B3A58; --navy-500:#24415F;
+  --copper:#E0825A; --copper-600:#C9703F; --copper-700:#B26E54;
+  --gold:#C89B5A; --gold-600:#A8803F; --gold-700:#8E6B43;
+  --cream:#E6E8EB; --cream-2:#C4CEDA; --cream-3:#93A3B5;
+  --line:rgba(200,155,90,.26); --line-soft:rgba(200,155,90,.13);
+  --g-green:#12A03C; --g-green-l:#2FC45C; --g-green-d:#0A7429;
+  --g-blue:#2A4BE0;  --g-blue-l:#4A6BF5;  --g-blue-d:#1B2FBE;
+  --g-yellow:#F5B324;--g-yellow-l:#FFD84A;--g-yellow-d:#D18B0E;
+  --ok:#3FBF7F; --warn:#E0A44A; --danger:#E0604A;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px;
+  --r-1:6px; --r-2:10px; --r-3:16px;
+  --ff-ui:'IBM Plex Sans Thai','Segoe UI',system-ui,sans-serif;
+  --ff-disp:'Playfair Display','Noto Serif Thai',Georgia,serif;
+  --ff-th-disp:'Noto Serif Thai','Playfair Display',Georgia,serif;
+  --shadow-1:0 2px 10px rgba(0,0,0,.35);
+  --shadow-2:0 10px 34px rgba(0,0,0,.48);
+  --t-fast:140ms cubic-bezier(.4,0,.2,1);
+  --t-med:260ms cubic-bezier(.4,0,.2,1);
+}
+
+/* ══════════════════════ 2. BASE ══════════════════════ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:var(--ff-ui); font-size:16px; line-height:1.55;
+  color:var(--cream); background:var(--navy-900);
+  background-image:
+    radial-gradient(1200px 700px at 12% -10%, rgba(224,130,90,.10), transparent 60%),
+    radial-gradient(1000px 600px at 100% 0%, rgba(200,155,90,.08), transparent 55%),
+    linear-gradient(180deg,#0B1B2E 0%,#0F243D 52%,#0B1B2E 100%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{margin:0; font-weight:600; line-height:1.25}
+button,input,select,textarea{font-family:inherit; font-size:inherit; color:inherit}
+button{cursor:pointer; border:0; background:none}
+:focus-visible{outline:2px solid var(--copper); outline-offset:2px; border-radius:4px}
+::selection{background:rgba(224,130,90,.35)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* scrollbar */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:rgba(0,0,0,.25)}
+*::-webkit-scrollbar-thumb{background:var(--navy-600);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+*::-webkit-scrollbar-thumb:hover{background:var(--gold-700);background-clip:padding-box}
+
+/* ══════════════════════ 3. LAYOUT ══════════════════════ */
+.app{display:flex;flex-direction:column;min-height:100dvh}
+
+.topbar{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; gap:var(--sp-4);
+  padding:10px clamp(12px,2.4vw,26px);
+  background:linear-gradient(180deg,rgba(8,18,31,.97),rgba(11,27,46,.90));
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 6px 24px rgba(0,0,0,.4);
+  flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand .mark{
+  width:42px;height:42px;flex:0 0 42px;border-radius:11px;display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--copper) 0%,var(--gold-700) 100%);
+  box-shadow:0 4px 14px rgba(224,130,90,.35), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.brand .mark svg{width:23px;height:23px;display:block}
+.brand-txt{min-width:0}
+.brand-txt h1{
+  font-family:var(--ff-th-disp); font-size:clamp(15px,2vw,20px); letter-spacing:.2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.brand-txt p{
+  margin:1px 0 0; font-size:11px; letter-spacing:2.4px; text-transform:uppercase;
+  color:var(--gold); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.topbar-spacer{flex:1 1 auto;min-width:0}
+
+.viewtabs{
+  display:flex;gap:3px;padding:3px;border-radius:12px;
+  background:rgba(0,0,0,.35);border:1px solid var(--line-soft);
+}
+.viewtabs button{
+  display:flex;align-items:center;gap:7px;
+  min-height:40px;padding:0 14px;border-radius:9px;
+  font-size:13.5px;font-weight:500;color:var(--cream-3);
+  transition:color var(--t-fast),background var(--t-fast);
+  white-space:nowrap;
+}
+.viewtabs button svg{width:16px;height:16px;flex:0 0 16px}
+.viewtabs button:hover{color:var(--cream);background:rgba(255,255,255,.05)}
+.viewtabs button[aria-selected="true"]{
+  color:#2A1508;font-weight:600;
+  background:linear-gradient(160deg,var(--gold) 0%,var(--copper) 110%);
+  box-shadow:0 3px 12px rgba(200,155,90,.34), inset 0 1px 0 rgba(255,255,255,.4);
+}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:0 16px;border-radius:10px;
+  font-size:14px;font-weight:500;letter-spacing:.2px;
+  border:1px solid var(--line);color:var(--cream);
+  background:linear-gradient(180deg,rgba(36,65,95,.65),rgba(20,46,72,.65));
+  transition:background var(--t-fast),border-color var(--t-fast),transform var(--t-fast),box-shadow var(--t-fast);
+  white-space:nowrap;
+}
+.btn svg{width:17px;height:17px;flex:0 0 17px}
+.btn:hover{background:linear-gradient(180deg,rgba(46,80,115,.8),rgba(27,58,88,.8));border-color:var(--gold-600)}
+.btn:active{transform:translateY(1px)}
+.btn--primary{
+  border-color:transparent;color:#2A1508;font-weight:600;
+  background:linear-gradient(160deg,var(--copper) 0%,var(--gold-600) 115%);
+  box-shadow:0 5px 18px rgba(224,130,90,.32), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.btn--primary:hover{background:linear-gradient(160deg,#EE9068 0%,#B98A46 115%);border-color:transparent}
+.btn--ghost{background:transparent;border-color:var(--line-soft);color:var(--cream-2)}
+.btn--ghost:hover{background:rgba(255,255,255,.05);color:var(--cream)}
+.btn--sm{min-height:36px;padding:0 11px;font-size:13px;border-radius:8px}
+.btn--danger:hover{border-color:var(--danger);color:#FFC9BE}
+.btn[disabled]{opacity:.4;pointer-events:none}
+
+.main{
+  flex:1; display:grid; gap:var(--sp-4);
+  grid-template-columns:340px minmax(0,1fr);
+  padding:var(--sp-4) clamp(12px,2.4vw,26px) var(--sp-6);
+  align-items:start;
+}
+
+/* ══════════════════════ 4. COMPONENTS ══════════════════════ */
+.panel{
+  border-radius:var(--r-3);
+  border:1px solid var(--line-soft);
+  background:linear-gradient(180deg,rgba(17,40,64,.80),rgba(11,27,46,.80));
+  backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px);
+  box-shadow:var(--shadow-1);
+  overflow:hidden;
+}
+.panel + .panel{margin-top:var(--sp-4)}
+.panel-hd{
+  display:flex;align-items:center;gap:9px;
+  padding:12px 16px;border-bottom:1px solid var(--line-soft);
+  background:linear-gradient(180deg,rgba(224,130,90,.09),transparent);
+}
+.panel-hd h2{
+  font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);
+}
+.panel-hd .hd-ico{width:15px;height:15px;color:var(--copper);flex:0 0 15px}
+.panel-hd .hd-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.panel-bd{padding:14px 16px}
+
+.sidebar{position:sticky;top:82px;max-height:calc(100dvh - 100px);overflow-y:auto;overflow-x:hidden;padding-right:2px}
+
+/* --- ปุ่มเลือกประเภทถัง --- */
+.tool-hint{font-size:12.5px;color:var(--cream-3);margin:0 0 11px;line-height:1.5}
+.bintools{display:flex;flex-direction:column;gap:9px}
+.bintool{
+  position:relative;display:flex;align-items:center;gap:12px;width:100%;
+  min-height:62px;padding:9px 12px;border-radius:12px;text-align:left;
+  border:1.5px solid var(--line-soft);background:rgba(0,0,0,.24);
+  transition:border-color var(--t-fast),background var(--t-fast),transform var(--t-fast);
+}
+.bintool:hover{background:rgba(255,255,255,.05);transform:translateX(2px)}
+.bintool[aria-pressed="true"]{border-color:var(--bt);background:var(--btbg);box-shadow:0 0 0 3px var(--btbg),0 6px 18px rgba(0,0,0,.35)}
+.bintool[aria-pressed="true"] .bt-check{opacity:1;transform:scale(1)}
+.bintool img{width:34px;height:auto;flex:0 0 34px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+.bt-txt{min-width:0;flex:1}
+.bt-txt strong{display:block;font-size:14px;font-weight:600;color:var(--cream)}
+.bt-txt span{display:block;font-size:11.5px;color:var(--cream-3);line-height:1.35;margin-top:1px}
+.bt-count{
+  font-family:var(--ff-disp);font-size:19px;font-weight:600;color:var(--bt);
+  min-width:26px;text-align:right;font-variant-numeric:tabular-nums;
+}
+.bt-check{
+  position:absolute;top:7px;right:7px;width:16px;height:16px;border-radius:50%;
+  background:var(--bt);display:grid;place-items:center;opacity:0;transform:scale(.4);
+  transition:opacity var(--t-fast),transform var(--t-fast);
+}
+.bt-check svg{width:10px;height:10px;color:#08121F}
+.bin-green{--bt:var(--g-green-l);--btbg:rgba(47,196,92,.15)}
+.bin-blue{--bt:var(--g-blue-l);--btbg:rgba(74,107,245,.16)}
+.bin-yellow{--bt:var(--g-yellow-l);--btbg:rgba(255,216,74,.15)}
+
+.modebar{display:flex;gap:6px;margin-top:12px}
+.modebar button{
+  flex:1;min-height:40px;border-radius:9px;font-size:12.5px;font-weight:500;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.22);color:var(--cream-3);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all var(--t-fast);
+}
+.modebar button svg{width:14px;height:14px}
+.modebar button:hover{color:var(--cream);border-color:var(--gold-700)}
+.modebar button[aria-pressed="true"]{background:rgba(224,130,90,.18);border-color:var(--copper);color:var(--copper)}
+
+/* --- KPI --- */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.kpi{
+  padding:11px 12px;border-radius:11px;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.24);
+  position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--copper);opacity:.8}
+.kpi b{display:block;font-family:var(--ff-disp);font-size:25px;font-weight:600;color:var(--cream);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:11px;color:var(--cream-3);margin-top:3px;letter-spacing:.3px}
+.kpi.k-gold::before{background:var(--gold)}
+
+/* --- รายการจุด --- */
+.pointlist{max-height:270px;overflow-y:auto;margin:0 -4px;padding:0 4px}
+.point{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:8px 9px;border-radius:9px;margin-bottom:5px;text-align:left;
+  border:1px solid transparent;background:rgba(0,0,0,.2);
+  transition:background var(--t-fast),border-color var(--t-fast);
+}
+.point:hover{background:rgba(255,255,255,.06);border-color:var(--line-soft)}
+.point.is-sel{border-color:var(--copper);background:rgba(224,130,90,.14)}
+.point .dot{width:11px;height:11px;flex:0 0 11px;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.4)}
+.point .p-txt{flex:1;min-width:0}
+.point .p-txt strong{display:block;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.point .p-txt span{display:block;font-size:11px;color:var(--cream-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.point .p-qty{font-size:12px;color:var(--gold);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.empty{padding:22px 10px;text-align:center;color:var(--cream-3);font-size:12.5px;line-height:1.6}
+.empty svg{width:32px;height:32px;opacity:.35;margin-bottom:7px}
+
+/* --- legend --- */
+.legend-item{display:flex;gap:11px;align-items:flex-start;padding:7px 0}
+.legend-item + .legend-item{border-top:1px solid var(--line-soft)}
+.legend-item img{width:29px;height:auto;flex:0 0 29px}
+.legend-item div{min-width:0}
+.legend-item strong{display:block;font-size:13px;font-weight:600}
+.legend-item span{display:block;font-size:11.5px;color:var(--cream-3);line-height:1.4}
+
+/* --- STAGE --- */
+.stage{
+  position:relative;border-radius:var(--r-3);overflow:hidden;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,#0C1F33,#08121F);
+  box-shadow:var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.05);
+  min-height:520px;
+}
+.stage-view{display:none;position:relative;width:100%}
+.stage-view.is-active{display:block}
+#svg2d,#svgIso{display:block;width:100%;height:clamp(420px,66vh,780px);touch-action:none;cursor:grab}
+#svg2d.placing,#svgIso.placing{cursor:crosshair}
+#svg2d.dragging{cursor:grabbing}
+#wrap3d{position:relative;width:100%;height:clamp(420px,66vh,780px);background:#08121F}
+#wrap3d canvas{display:block;width:100%!important;height:100%!important}
+
+.stage-toolbar{
+  position:absolute;top:12px;right:12px;z-index:12;
+  display:flex;gap:6px;padding:5px;border-radius:11px;
+  background:rgba(8,18,31,.86);backdrop-filter:blur(10px);
+  border:1px solid var(--line-soft);box-shadow:var(--shadow-1);
+}
+.stage-toolbar button{
+  width:38px;height:38px;border-radius:8px;display:grid;place-items:center;color:var(--cream-2);
+  transition:background var(--t-fast),color var(--t-fast);
+}
+.stage-toolbar button svg{width:17px;height:17px}
+.stage-toolbar button:hover{background:rgba(255,255,255,.09);color:var(--copper)}
+
+.stage-badge{
+  position:absolute;top:12px;left:12px;z-index:12;
+  display:flex;align-items:center;gap:8px;
+  padding:7px 13px;border-radius:999px;font-size:12px;font-weight:500;letter-spacing:.4px;
+  background:rgba(8,18,31,.86);backdrop-filter:blur(10px);
+  border:1px solid var(--line-soft);color:var(--cream-2);
+  max-width:calc(100% - 220px);
+}
+.stage-badge .pulse{width:7px;height:7px;border-radius:50%;background:var(--copper);flex:0 0 7px}
+.stage-badge.armed{border-color:var(--copper);color:var(--copper)}
+.stage-badge.armed .pulse{animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+
+.hint3d{
+  position:absolute;bottom:12px;left:12px;z-index:12;
+  padding:7px 12px;border-radius:9px;font-size:11.5px;color:var(--cream-3);
+  background:rgba(8,18,31,.82);border:1px solid var(--line-soft);backdrop-filter:blur(8px);
+}
+.fallback3d{
+  position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:28px;
+}
+.fallback3d.show{display:grid}
+.fallback3d div{max-width:420px}
+.fallback3d svg{width:42px;height:42px;color:var(--warn);margin-bottom:12px}
+.fallback3d h3{font-family:var(--ff-th-disp);font-size:18px;margin-bottom:8px}
+.fallback3d p{font-size:13.5px;color:var(--cream-3);line-height:1.65;margin:0 0 16px}
+
+/* --- inspector (แผงรายละเอียดถังที่เลือก) --- */
+.inspector{
+  position:absolute;right:12px;bottom:12px;z-index:14;width:268px;
+  border-radius:13px;overflow:hidden;display:none;
+  background:rgba(8,18,31,.94);backdrop-filter:blur(14px);
+  border:1px solid var(--gold-700);box-shadow:var(--shadow-2);
+}
+.inspector.show{display:block;animation:popIn 200ms cubic-bezier(.2,.9,.3,1.3)}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+.insp-hd{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg,rgba(224,130,90,.12),transparent)}
+.insp-hd img{width:24px;height:auto;flex:0 0 24px}
+.insp-hd b{font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.insp-hd button{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;color:var(--cream-3)}
+.insp-hd button:hover{background:rgba(255,255,255,.1);color:var(--cream)}
+.insp-hd button svg{width:14px;height:14px}
+.insp-bd{padding:11px 12px;display:flex;flex-direction:column;gap:10px}
+.fld label{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.fld input,.fld select,.fld textarea{
+  width:100%;min-height:38px;padding:7px 10px;border-radius:8px;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.35);color:var(--cream);
+  transition:border-color var(--t-fast);font-size:13.5px;
+}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--copper);outline:none}
+.fld textarea{resize:vertical;min-height:52px;line-height:1.45}
+.fld select option{background:var(--navy-800)}
+.qtyrow{display:flex;gap:7px;align-items:center}
+.qtyrow button{width:38px;height:38px;border-radius:8px;border:1px solid var(--line-soft);background:rgba(0,0,0,.3);display:grid;place-items:center;color:var(--cream-2);font-size:17px;line-height:1}
+.qtyrow button:hover{border-color:var(--copper);color:var(--copper)}
+.qtyrow input{text-align:center;font-variant-numeric:tabular-nums}
+.insp-typerow{display:flex;gap:6px}
+.insp-typerow button{flex:1;height:36px;border-radius:8px;border:1.5px solid var(--line-soft);background:rgba(0,0,0,.3);display:grid;place-items:center}
+.insp-typerow button i{width:15px;height:15px;border-radius:50%;display:block}
+.insp-typerow button[aria-pressed="true"]{border-color:var(--cream);background:rgba(255,255,255,.1)}
+
+/* --- modal พรีวิวเอกสาร --- */
+.modal{
+  position:fixed;inset:0;z-index:200;display:none;
+  background:rgba(4,9,16,.86);backdrop-filter:blur(6px);
+  padding:clamp(8px,2vw,28px);
+}
+.modal.show{display:flex;flex-direction:column;animation:fadeIn 180ms ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-hd{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:12px 16px;border-radius:13px 13px 0 0;
+  background:var(--navy-850);border:1px solid var(--line);border-bottom:0;
+}
+.modal-hd h2{font-family:var(--ff-th-disp);font-size:16px;flex:1;min-width:160px}
+.modal-bd{
+  flex:1;overflow:auto;padding:clamp(10px,2vw,26px);
+  background:#2A3441;border:1px solid var(--line);border-radius:0 0 13px 13px;
+}
+.print-note{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:11px 14px;margin-bottom:16px;border-radius:10px;font-size:13px;line-height:1.6;
+  background:rgba(224,164,74,.13);border:1px solid rgba(224,164,74,.38);color:#F4D9AE;
+}
+.print-note svg{width:17px;height:17px;flex:0 0 17px;margin-top:2px;color:var(--warn)}
+.print-note b{color:#FFE9C4}
+
+/* ══════════════════════ 5. เอกสาร (หน้ากระดาษ) ══════════════════════ */
+#printRoot{display:none}
+.modal .doc{display:block}
+.page{
+  width:297mm;min-height:210mm;margin:0 auto 16px;position:relative;overflow:hidden;
+  background:#0B1B2E;color:var(--cream);
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;
+  font-size:10.5pt;
+}
+.page-inner{flex:1;display:flex;flex-direction:column;padding:12mm 14mm 10mm}
+.pg-rule{height:3px;background:linear-gradient(90deg,var(--copper),var(--gold),transparent 85%);flex:0 0 3px}
+.pg-hd{display:flex;align-items:flex-end;gap:10mm;padding-bottom:4mm;margin-bottom:6mm;border-bottom:1px solid var(--line)}
+.pg-hd .t{flex:1;min-width:0}
+.pg-hd .t h3{font-family:var(--ff-th-disp);font-size:15pt;line-height:1.2}
+.pg-hd .t p{margin:1mm 0 0;font-size:8pt;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.pg-hd .meta{text-align:right;font-size:8pt;color:var(--cream-3);line-height:1.6;white-space:nowrap}
+.pg-hd .meta b{color:var(--cream)}
+.pg-ft{
+  display:flex;align-items:center;gap:8px;padding-top:3mm;margin-top:auto;
+  border-top:1px solid var(--line-soft);font-size:7.5pt;color:var(--cream-3);letter-spacing:.4px;
+}
+.pg-ft .sp{flex:1}
+
+/* ปก */
+.cover .page-inner{justify-content:center;padding:16mm 20mm}
+.cover-mark{width:22mm;height:22mm;border-radius:6mm;display:grid;place-items:center;margin-bottom:8mm;
+  background:linear-gradient(145deg,var(--copper),var(--gold-700));box-shadow:0 4mm 10mm rgba(224,130,90,.3)}
+.cover-mark svg{width:12mm;height:12mm}
+.cover h2{font-family:var(--ff-th-disp);font-size:30pt;line-height:1.18;letter-spacing:-.3px;max-width:190mm}
+.cover .en{font-family:var(--ff-disp);font-size:12pt;color:var(--gold);letter-spacing:2.5px;margin-top:3mm}
+.cover .divider{width:62mm;height:2px;margin:7mm 0;background:linear-gradient(90deg,var(--copper),var(--gold),transparent)}
+.cover-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:12mm;align-items:end;margin-top:4mm}
+.cover-meta{display:grid;grid-template-columns:auto 1fr;gap:2.5mm 6mm;font-size:9.5pt;align-content:start}
+.cover-meta dt{color:var(--gold);letter-spacing:.5px}
+.cover-meta dd{margin:0;color:var(--cream);font-weight:500}
+.cover-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.ck{padding:5mm 4mm;border:1px solid var(--line);border-radius:3mm;background:rgba(255,255,255,.035);text-align:center}
+.ck b{display:block;font-family:var(--ff-disp);font-size:22pt;line-height:1;color:var(--copper)}
+.ck span{display:block;font-size:8pt;color:var(--cream-3);margin-top:2mm;letter-spacing:.4px}
+.cover-legend{display:flex;gap:7mm;margin-top:9mm;padding-top:6mm;border-top:1px solid var(--line-soft)}
+.cl{display:flex;gap:3mm;align-items:center;flex:1}
+.cl img{width:11mm;height:auto;flex:0 0 11mm}
+.cl b{display:block;font-size:10pt}
+.cl span{display:block;font-size:7.8pt;color:var(--cream-3);line-height:1.4}
+
+/* หน้าแผนผัง */
+.map-frame{flex:1;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:2mm;overflow:hidden;background:#08121F}
+.map-frame .mf-bd{flex:1;display:grid;place-items:center;padding:3mm;min-height:0}
+.map-frame svg,.map-frame img{max-width:100%;max-height:132mm;height:auto;display:block}
+.map-legendbar{display:flex;gap:6mm;align-items:center;padding:3mm 5mm;border-top:1px solid var(--line-soft);background:rgba(0,0,0,.3);font-size:8.5pt;flex-wrap:wrap}
+.mlb{display:flex;align-items:center;gap:2mm}
+.mlb i{width:3.6mm;height:3.6mm;border-radius:50%;display:block;box-shadow:0 0 0 .6mm rgba(0,0,0,.5)}
+.mlb .sp{flex:1}
+
+/* ตาราง */
+.tbl{width:100%;border-collapse:collapse;font-size:9pt}
+.tbl thead th{
+  padding:2.6mm 3mm;text-align:left;font-size:8pt;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--gold);background:rgba(224,130,90,.10);border-bottom:1px solid var(--line);
+}
+.tbl tbody td{padding:2.4mm 3mm;border-bottom:1px solid rgba(200,155,90,.10);vertical-align:middle}
+.tbl tbody tr:nth-child(even) td{background:rgba(255,255,255,.022)}
+.tbl .c{text-align:center}
+.tbl .num{font-variant-numeric:tabular-nums;text-align:center}
+.chip{display:inline-flex;align-items:center;gap:2mm;padding:.8mm 2.4mm;border-radius:999px;font-size:8pt;font-weight:500;border:1px solid}
+.chip i{width:2.6mm;height:2.6mm;border-radius:50%;display:block}
+.sum-row{display:flex;gap:4mm;margin-top:5mm;flex-wrap:wrap}
+.sum-card{flex:1;min-width:42mm;padding:4mm;border:1px solid var(--line-soft);border-radius:2.5mm;background:rgba(255,255,255,.03);display:flex;align-items:center;gap:3mm}
+.sum-card img{width:9mm;height:auto;flex:0 0 9mm}
+.sum-card b{font-family:var(--ff-disp);font-size:17pt;line-height:1;color:var(--cream)}
+.sum-card span{display:block;font-size:8pt;color:var(--cream-3)}
+.signrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10mm;margin-top:auto;padding-top:10mm}
+.sign{text-align:center;font-size:8.5pt;color:var(--cream-3)}
+.sign .ln{height:1px;background:var(--line);margin-bottom:2.5mm}
+.sign b{display:block;color:var(--cream);font-weight:500;margin-bottom:1mm}
+
+/* ══════════════════════ 6. DEBUG (?debug=1) ══════════════════════ */
+#debugPanel{
+  display:none;position:fixed;left:10px;bottom:10px;z-index:500;width:300px;max-height:44vh;overflow:auto;
+  padding:10px 12px;border-radius:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.55;
+  background:rgba(4,9,16,.94);border:1px solid var(--warn);color:#D8E4F0;box-shadow:var(--shadow-2);
+}
+#debugPanel.show{display:block}
+#debugPanel h4{color:var(--warn);font-size:10px;letter-spacing:1.5px;margin-bottom:6px;text-transform:uppercase}
+#debugPanel b{color:var(--copper)}
+
+/* ══════════════════════ 7. RESPONSIVE ══════════════════════ */
+@media (max-width:1100px){
+  .main{grid-template-columns:1fr}
+  .sidebar{position:static;max-height:none;order:2}
+  .stage{order:1}
+  .brand-txt p{display:none}
+}
+@media (max-width:720px){
+  .topbar{gap:10px;padding:9px 12px}
+  .brand .mark{width:36px;height:36px;flex:0 0 36px}
+  .viewtabs{order:3;width:100%}
+  .viewtabs button{flex:1;padding:0 8px;font-size:12px}
+  .viewtabs button span{display:none}
+  .topbar-spacer{display:none}
+  #svg2d,#svgIso,#wrap3d{height:56vh}
+  .inspector{left:12px;right:12px;width:auto}
+  .stage-badge{max-width:calc(100% - 120px);font-size:11px;padding:6px 10px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* ══════════════════════ 8. PRINT ══════════════════════ */
+@page{size:A4 landscape;margin:0}
+@media print{
+  html,body{background:#0B1B2E!important;height:auto;overflow:visible}
+  body>*{display:none!important}
+  #printRoot{display:block!important;position:static;margin:0;padding:0}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  /* สูง 209.6mm (ไม่เต็ม 210mm) เพื่อกันเบราว์เซอร์ปัดเศษแล้วแทรกหน้าว่างท้ายเล่ม */
+  .page{
+    width:297mm;height:209.6mm;min-height:0;margin:0;box-shadow:none;zoom:1!important;
+    break-after:page;page-break-after:always;break-inside:avoid;overflow:hidden;
+  }
+  .page:last-child{break-after:auto;page-break-after:auto}
+  .tbl tbody tr{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ═══════════ TOPBAR ═══════════ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2A1508" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/>
+        </svg>
+      </div>
+      <div class="brand-txt">
+        <h1>ผังจุดวางถังขยะแยกประเภท</h1>
+        <p>HAMER · Waste Segregation Layout</p>
+      </div>
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <div class="viewtabs" role="tablist" aria-label="เลือกมุมมองแผนผัง">
+      <button role="tab" id="tab-2d" aria-selected="true" data-view="2d">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span>2 มิติ</span>
+      </button>
+      <button role="tab" id="tab-iso" aria-selected="false" data-view="iso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 8v8l10 6 10-6V8z"/><path d="M2 8l10 6 10-6M12 14v8"/></svg>
+        <span>ไอโซเมตริก</span>
+      </button>
+      <button role="tab" id="tab-3d" aria-selected="false" data-view="3d">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/><path d="M3 12h18M12 3c2.6 3 2.6 15 0 18M12 3c-2.6 3-2.6 15 0 18"/></svg>
+        <span>3 มิติ</span>
+      </button>
+    </div>
+
+    <button class="btn btn--primary" id="btnExport">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 18h4"/></svg>
+      ส่งออก PDF
+    </button>
+  </header>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="main">
+
+    <!-- ───── SIDEBAR ───── -->
+    <aside class="sidebar">
+
+      <section class="panel">
+        <div class="panel-hd">
+          <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.9-7-10a7 7 0 1 1 14 0c0 5.1-7 10-7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>
+          <h2>วางจุดถังขยะ</h2>
+        </div>
+        <div class="panel-bd">
+          <p class="tool-hint" id="toolHint">เลือกประเภทถัง แล้วคลิกบนแผนผังเพื่อวางจุด · คลิกถังที่วางแล้วเพื่อแก้ไข</p>
+          <div class="bintools" id="binTools"></div>
+          <div class="modebar">
+            <button id="mDrag" aria-pressed="true" title="โหมดเลือก/ลากถัง">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m4 4 7.1 16 2.5-6.5L20 11z"/></svg>เลือก/ลาก
+            </button>
+            <button id="mDel" aria-pressed="false" title="โหมดลบถัง">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>ลบถัง
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd">
+          <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.5L20 7"/></svg>
+          <h2>สรุปภาพรวม</h2>
+        </div>
+        <div class="panel-bd">
+          <div class="kpis" id="kpis"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd">
+          <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          <h2>รายการจุดวาง</h2>
+          <div class="hd-right"><span id="ptCount" style="font-size:11px;color:var(--cream-3)"></span></div>
+        </div>
+        <div class="panel-bd">
+          <div class="pointlist" id="pointList"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd">
+          <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+          <h2>สัญลักษณ์ความหมาย</h2>
+        </div>
+        <div class="panel-bd" id="legendBox"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd">
+          <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          <h2>ข้อมูลเอกสาร</h2>
+        </div>
+        <div class="panel-bd">
+          <div class="fld" style="margin-bottom:9px"><label for="mDoc">เลขที่เอกสาร</label><input id="mDoc" placeholder="เช่น SAF-WS-001"></div>
+          <div class="fld" style="margin-bottom:9px"><label for="mBy">ผู้จัดทำ</label><input id="mBy" placeholder="ชื่อ-สกุล"></div>
+          <div class="fld" style="margin-bottom:9px"><label for="mDept">หน่วยงาน</label><input id="mDept" placeholder="เช่น ความปลอดภัยฯ"></div>
+          <div class="fld" style="margin-bottom:9px"><label for="mRev">ครั้งที่แก้ไข (Rev.)</label><input id="mRev" placeholder="00"></div>
+          <div class="fld"><label for="mNote">หมายเหตุท้ายเอกสาร</label><textarea id="mNote" placeholder="ข้อความเพิ่มเติมที่จะแสดงในเอกสาร"></textarea></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd">
+          <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+          <h2>สำรอง / กู้คืนข้อมูล</h2>
+        </div>
+        <div class="panel-bd" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn--sm btn--ghost" id="btnSave">บันทึกไฟล์ JSON</button>
+          <button class="btn btn--sm btn--ghost" id="btnLoad">กู้คืนจากไฟล์</button>
+          <button class="btn btn--sm btn--ghost btn--danger" id="btnClear">ล้างถังทั้งหมด</button>
+          <input type="file" id="fileIn" accept="application/json,.json" class="sr-only">
+        </div>
+      </section>
+    </aside>
+
+    <!-- ───── STAGE ───── -->
+    <section class="stage">
+      <div class="stage-badge" id="stageBadge"><span class="pulse"></span><span id="badgeTxt">โหมดเลือก — คลิกถังเพื่อแก้ไข</span></div>
+
+      <div class="stage-toolbar">
+        <button id="btnZoomIn" title="ขยาย" aria-label="ขยาย"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></button>
+        <button id="btnZoomOut" title="ย่อ" aria-label="ย่อ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/></svg></button>
+        <button id="btnFit" title="พอดีหน้าจอ" aria-label="พอดีหน้าจอ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg></button>
+        <button id="btnUndo" title="ย้อนกลับ" aria-label="ย้อนกลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3.5 13a9 9 0 1 0 2.1-5.7L3 10"/></svg></button>
+      </div>
+
+      <!-- 2D -->
+      <div class="stage-view is-active" id="view-2d" role="tabpanel" aria-labelledby="tab-2d">
+        <svg id="svg2d" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <!-- ISOMETRIC -->
+      <div class="stage-view" id="view-iso" role="tabpanel" aria-labelledby="tab-iso">
+        <svg id="svgIso" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <!-- 3D -->
+      <div class="stage-view" id="view-3d" role="tabpanel" aria-labelledby="tab-3d">
+        <div id="wrap3d">
+          <div class="hint3d">ลากเมาส์ = หมุน · ล้อ = ซูม · คลิกขวาลาก = เลื่อน · คลิกพื้นเมื่อเลือกถัง = วางจุด</div>
+          <div class="fallback3d" id="fallback3d">
+            <div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+              <h3>โหลดมุมมอง 3 มิติไม่สำเร็จ</h3>
+              <p>มุมมอง 3 มิติต้องต่ออินเทอร์เน็ตเพื่อโหลดไลบรารี three.js<br>ใช้มุมมอง <b>ไอโซเมตริก</b> แทนได้ทันที — ข้อมูลจุดวางถังชุดเดียวกัน และส่งออก PDF ได้เหมือนกัน</p>
+              <button class="btn btn--primary" id="btnGoIso">ไปมุมมองไอโซเมตริก</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSPECTOR -->
+      <div class="inspector" id="inspector">
+        <div class="insp-hd">
+          <img id="iImg" alt="">
+          <b id="iTitle">—</b>
+          <button id="iClose" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="insp-bd">
+          <div class="fld">
+            <label>ประเภทถัง</label>
+            <div class="insp-typerow" id="iTypes"></div>
+          </div>
+          <div class="fld">
+            <label for="iQty">จำนวนถัง ณ จุดนี้</label>
+            <div class="qtyrow">
+              <button id="iMinus" aria-label="ลดจำนวน">−</button>
+              <input id="iQty" type="number" min="1" max="99" inputmode="numeric" value="1">
+              <button id="iPlus" aria-label="เพิ่มจำนวน">+</button>
+            </div>
+          </div>
+          <div class="fld"><label for="iNote">หมายเหตุ</label><input id="iNote" placeholder="เช่น หน้าประตูทางเข้า"></div>
+          <button class="btn btn--sm btn--ghost btn--danger" id="iDel" style="width:100%">ลบจุดนี้</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL พรีวิวเอกสาร ═══════════ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-hd">
+    <h2 id="modalTitle">พรีวิวเอกสารนำเสนอ</h2>
+    <button class="btn btn--primary" id="btnPrint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      พิมพ์ / บันทึกเป็น PDF
+    </button>
+    <button class="btn btn--ghost" id="btnCloseModal">ปิด</button>
+  </div>
+  <div class="modal-bd">
+    <div class="print-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+      <div>
+        กดปุ่ม <b>พิมพ์ / บันทึกเป็น PDF</b> แล้วในหน้าต่างพิมพ์ให้เลือก <b>ปลายทาง = Save as PDF</b> ·
+        <b>ขนาด A4 · แนวนอน</b> · เปิด <b>“กราฟิกพื้นหลัง (Background graphics)”</b> เพื่อให้สีพื้นหลังออกครบ · ตั้งขอบกระดาษ (Margins) เป็น <b>ไม่มี / None</b>
+      </div>
+    </div>
+    <div class="doc" id="docHost"></div>
+  </div>
+</div>
+
+<div id="printRoot"></div>
+<div id="debugPanel"><h4>debug panel</h4><div id="debugBody"></div></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   ผังจุดวางถังขยะแยกประเภท — โรงงาน HAMER
+   โครงสร้าง 7 ส่วนตามมาตรฐาน fable-single-file-app
+   ที่มาข้อมูลผัง: Lay-Out-จุดแยกขยะ.xlsx (อ่านพิกัดรูปทรงจริงจากไฟล์ ไม่ได้วาดเดา)
+   ที่มาธีมสี   : ธีม-สี.docx (สุ่มค่าสีจริงจากภาพในเอกสาร)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ===== 1. CONFIG & CONSTANTS ===== */
+const APP_NAME = 'ผังจุดวางถังขยะแยกประเภท';
+const SITE_NAME = 'โรงงาน HAMER';
+const SCHEMA_VERSION = 1;
+const LS_KEY = 'hamer_waste_layout_v1';
+
+/* รูปถังขยะจริง 3 ใบ — ดึงออกจาก Lay-Out-จุดแยกขยะ.xlsx แล้วลบพื้นหลังขาว */
+const BIN_IMG = {
+  green:  'data:image/png;base64,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',
+  blue:   'data:image/png;base64,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',
+  yellow: 'data:image/png;base64,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'
+};
+
+/* ประเภทถัง 3 ชนิด — ข้อความตรงตาม legend ในไฟล์ต้นทาง */
+const BIN_TYPES = [
+  { id:'green',  label:'ขยะเปียก',  desc:'เศษอาหาร ผลไม้',              color:'#12A03C', light:'#2FC45C', dark:'#0A7429', lid:'#01B22E', body:'#018226' },
+  { id:'blue',   label:'ขยะทั่วไป', desc:'กระดาษ ซองอาหาร',             color:'#2A4BE0', light:'#4A6BF5', dark:'#1B2FBE', lid:'#1C37E8', body:'#1B2FBE' },
+  { id:'yellow', label:'ขยะรีไซเคิล',desc:'ขวดพลาสติก ขวดแก้ว กระป๋อง', color:'#F5B324', light:'#FFD84A', dark:'#D18B0E', lid:'#FFDA27', body:'#F09A12' }
+];
+const TYPE_MAP = Object.fromEntries(BIN_TYPES.map(t => [t.id, t]));
+
+/* ระบบพิกัดโลก (world) = พิกัดพิกเซลจริงที่อ่านได้จากรูปทรงใน xlsx */
+const WORLD = { w: 2120, h: 1080 };
+
+/* ── โซนทั้งหมด (x,y,w,h = พิกัดจากไฟล์ต้นทาง · z = ความสูงสมมติสำหรับ 3D) ──
+   หมายเหตุ: ชื่ออาคารใช้ตัวย่อตามที่ปรากฏในไฟล์ต้นทางทุกตัว ไม่มีการตั้งชื่อเต็มขึ้นเอง */
+const ZONES = [
+  // พื้นที่หลัก 2 เฟส
+  { id:'PH1', name:'PHASE 1', kind:'phase', x:131, y:300, w:766, h:532, z:0 },
+  { id:'PH2', name:'PHASE 2', kind:'phase', x:995, y:299, w:766, h:532, z:0 },
+
+  // อาคารใน PHASE 1
+  { id:'P1-OFFICE', name:'OFFICE', kind:'bld', x:147, y:341, w:330, h:251, z:105 },
+  { id:'P1-RND',    name:'R&D',    kind:'room',x:393, y:351, w:61,  h:77,  z:125 },
+  { id:'P1-STORE',  name:'STORE',  kind:'bld', x:508, y:337, w:82,  h:77,  z:95  },
+  { id:'P1-QACI',   name:'QA&CI',  kind:'bld', x:527, y:431, w:61,  h:77,  z:95  },
+  { id:'P1-EDP',    name:'EDP&PC', kind:'bld', x:607, y:340, w:263, h:209, z:110 },
+  { id:'P1-WH',     name:'WH',     kind:'bld', x:147, y:610, w:341, h:206, z:140 },
+  { id:'P1-PK',     name:'PK',     kind:'bld', x:529, y:609, w:333, h:206, z:140 },
+
+  // อาคารใน PHASE 2
+  { id:'P2-GD',     name:'GD',        kind:'bld', x:1012, y:338, w:218, h:484, z:135 },
+  { id:'P2-WD',     name:'WD',        kind:'bld', x:1256, y:339, w:218, h:319, z:130 },
+  { id:'P2-TB',     name:'TB',        kind:'bld', x:1255, y:672, w:172, h:153, z:100 },
+  { id:'P2-BD',     name:'BD',        kind:'bld', x:1467, y:673, w:132, h:89,  z:90  },
+  { id:'P2-OFFICE', name:'OFFICE',    kind:'bld', x:1505, y:337, w:246, h:210, z:105 },
+  { id:'P2-HALL',   name:'TOWN HALL', kind:'room',x:1515, y:465, w:223, h:75,  z:120 },
+  { id:'P2-LS',     name:'LS',        kind:'bld', x:1624, y:616, w:122, h:206, z:100 },
+
+  // อาคาร/พื้นที่บริการรอบนอก
+  // mapLines = จุดตัดบรรทัดสำหรับป้ายบนแผนผัง (กำหนดเองเพื่อไม่ให้ตัดคำไทยผิด) — ชื่อเต็มใน name ใช้ในตาราง/เอกสาร
+  { id:'F-LAB',   name:'LAB',                  kind:'fac', x:1124, y:108, w:253, h:106, z:90 },
+  { id:'F-RM',    name:'สโตร์เก็บวัตถุดิบ RM', kind:'fac', x:1851, y:465, w:190, h:372, z:120, mapLines:['สโตร์เก็บ','วัตถุดิบ RM'] },
+  { id:'F-CAR1',  name:'โรงจอดรถยนต์ (เหนือ)', kind:'park',x:50,   y:217, w:79,  h:49,  z:40,  mapLines:['โรงจอด','รถยนต์'] },
+  { id:'F-CAR2',  name:'โรงจอดรถยนต์ (ตะวันตก)',kind:'park',x:48,  y:299, w:33,  h:537, z:40,  mapLines:['โรงจอดรถยนต์'] },
+  { id:'F-GUARD', name:'ป้อม รปภ.',            kind:'fac', x:51,   y:868, w:51,  h:61,  z:70,  mapLines:['ป้อม','รปภ.'] },
+  { id:'F-CAR3',  name:'โรงจอดรถยนต์ (ใต้)',   kind:'park',x:196,  y:888, w:122, h:122, z:40,  mapLines:['โรงจอด','รถยนต์'] },
+  { id:'F-ELEC',  name:'ห้องควบคุมไฟฟ้า',       kind:'fac', x:323,  y:889, w:122, h:122, z:75,  mapLines:['ห้องควบคุม','ไฟฟ้า'] },
+  { id:'F-WWT',   name:'บ่อบำบัด',              kind:'fac', x:455,  y:887, w:50,  h:122, z:25 },
+  { id:'F-WC1',   name:'ห้องน้ำไลน์ผลิต (1)',   kind:'fac', x:513,  y:888, w:123, h:122, z:70,  mapLines:['ห้องน้ำ','ไลน์ผลิต (1)'] },
+  { id:'F-FIRE',  name:'สถานีดับเพลิง',         kind:'fac', x:642,  y:888, w:125, h:122, z:80,  mapLines:['สถานี','ดับเพลิง'] },
+  { id:'F-BOIL',  name:'ห้องบอยเลอร์',          kind:'fac', x:770,  y:888, w:127, h:124, z:95,  mapLines:['ห้อง','บอยเลอร์'] },
+  { id:'F-GAS1',  name:'สถานีแก๊ส',             kind:'fac', x:998,  y:889, w:126, h:122, z:60 },
+  { id:'F-WC2',   name:'ห้องน้ำไลน์ผลิต (2)',   kind:'fac', x:1154, y:888, w:126, h:122, z:70,  mapLines:['ห้องน้ำ','ไลน์ผลิต (2)'] },
+  { id:'F-CANT',  name:'โรงอาหาร',              kind:'fac', x:1313, y:888, w:196, h:122, z:90 },
+  { id:'F-GAS2',  name:'สถานีก๊าซ',             kind:'fac', x:1572, y:888, w:61,  h:122, z:60 }
+];
+
+/* ถนน (เส้นสีฟ้าในไฟล์ต้นทาง) — h = แนวนอน, v = แนวตั้ง */
+const ROADS = [
+  { id:'R-N', dir:'h', x:135, y:252, len:1666 },
+  { id:'R-S', dir:'h', x:132, y:849, len:1666 },
+  { id:'R-W', dir:'v', x:104, y:302, len:525 },
+  { id:'R-C', dir:'v', x:948, y:300, len:525 },
+  { id:'R-E', dir:'v', x:1788,y:301, len:524 }
+];
+const ROAD_W = 26;
+
+const ISO_A = Math.cos(Math.PI/6);   // 0.8660
+const ISO_B = 0.5;
+
+/* ===== 2. STATE ===== */
+let state = {
+  version: SCHEMA_VERSION,
+  bins: [],
+  seq: 0,
+  meta: { docNo:'', preparedBy:'', dept:'', rev:'00', note:'' }
+};
+
+const ui = {
+  view: '2d',              // '2d' | 'iso' | '3d'
+  armedType: null,         // ประเภทถังที่กำลังจะวาง
+  mode: 'select',          // 'select' | 'delete'
+  selectedId: null,
+  history: [],             // สำหรับ undo
+  vb: { '2d':null, 'iso':null },
+  drag: null,
+  three: null,
+  debug: false
+};
+
+/* ===== 3. DATA LAYER (load / save / migrate) ===== */
+function migrate(d){
+  if (!d || typeof d !== 'object') return null;
+  if (!d.version) {                       // ข้อมูลรุ่นก่อนมีเลขเวอร์ชัน → เติม default ให้ครบ
+    d.version = 1;
+    d.bins = Array.isArray(d.bins) ? d.bins : [];
+    d.seq  = typeof d.seq === 'number' ? d.seq : d.bins.length;
+    d.meta = d.meta || { docNo:'', preparedBy:'', dept:'', rev:'00', note:'' };
+  }
+  // เติม field ที่อาจขาดในถังแต่ละใบ (ไม่ลบของเดิมทิ้ง)
+  d.bins = (d.bins || []).filter(b => b && typeof b.x === 'number' && typeof b.y === 'number')
+    .map(b => ({
+      id:   b.id   || ('B' + Math.random().toString(36).slice(2,8)),
+      type: TYPE_MAP[b.type] ? b.type : 'green',
+      x:    clamp(b.x, 0, WORLD.w),
+      y:    clamp(b.y, 0, WORLD.h),
+      qty:  clampInt(b.qty, 1, 99, 1),
+      note: typeof b.note === 'string' ? b.note : '',
+      no:   typeof b.no === 'number' ? b.no : 0
+    }));
+  d.meta = Object.assign({ docNo:'', preparedBy:'', dept:'', rev:'00', note:'' }, d.meta || {});
+  d.seq  = Math.max(typeof d.seq === 'number' ? d.seq : 0, ...d.bins.map(b => b.no || 0), 0);
+  d.version = SCHEMA_VERSION;
+  return d;
+}
+
+function load(){
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const parsed = migrate(JSON.parse(raw));
+    if (parsed) state = parsed;
+  } catch (e) {
+    console.error('[HAMER] โหลดข้อมูลเดิมไม่สำเร็จ — คงข้อมูลใน localStorage ไว้ ไม่เขียนทับ', e);
+    ui.loadError = String(e && e.message || e);
+  }
+}
+
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  catch (e) { console.error('[HAMER] บันทึกไม่สำเร็จ', e); alert('บันทึกลงเครื่องไม่สำเร็จ: ' + e.message); }
+}
+
+function pushHistory(){
+  ui.history.push(JSON.stringify({ bins: state.bins, seq: state.seq }));
+  if (ui.history.length > 60) ui.history.shift();
+}
+
+function undo(){
+  const prev = ui.history.pop();
+  if (!prev) return false;
+  const o = JSON.parse(prev);
+  state.bins = o.bins; state.seq = o.seq;
+  ui.selectedId = null;
+  save(); renderAll();
+  return true;
+}
+
+/* ===== 4. BUSINESS LOGIC (pure functions — ห้ามแตะ DOM) ===== */
+function clamp(v, lo, hi){ const n = Number(v); if (!isFinite(n)) return lo; return Math.min(hi, Math.max(lo, n)); }
+function clampInt(v, lo, hi, dflt){ const n = parseInt(v, 10); if (!isFinite(n)) return dflt; return Math.min(hi, Math.max(lo, n)); }
+
+/** จุด (x,y) อยู่ในสี่เหลี่ยมหรือไม่ */
+function inRect(x, y, r){ return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; }
+
+/** หาโซนที่จุดนี้อยู่ — โซนเล็กที่สุดที่ครอบจุดชนะ (ห้องย่อยชนะอาคารใหญ่) */
+function zoneAt(x, y){
+  let best = null, bestArea = Infinity;
+  for (const z of ZONES){
+    if (z.kind === 'phase') continue;          // เฟสเป็นพื้นที่ใหญ่ ใช้เป็น fallback
+    if (inRect(x, y, z)){
+      const a = z.w * z.h;
+      if (a < bestArea){ best = z; bestArea = a; }
+    }
+  }
+  if (best) return best;
+  for (const z of ZONES) if (z.kind === 'phase' && inRect(x, y, z)) return z;
+  return null;
+}
+
+/** ชื่อพื้นที่ที่จะแสดง (มีค่าเสมอ ไม่คืน undefined) */
+function zoneLabel(x, y){
+  const z = zoneAt(x, y);
+  return z ? z.name : 'พื้นที่ส่วนกลาง / ถนน';
+}
+
+/** คำนวณการจัดป้ายชื่อให้พอดีกรอบโซน (pure)
+ *  คืน { rot, lines, fs } — rot=true คือหมุนป้าย 90° สำหรับกรอบแคบสูง
+ *  ตัวคูณ 0.56 = ความกว้างเฉลี่ยต่ออักษรเทียบกับขนาดฟอนต์ (ไทย+ละตินผสม) */
+function fitLabel(z, maxFs, padX, padY){
+  padX = padX == null ? 12 : padX;
+  padY = padY == null ? 8  : padY;
+  const rot = z.w < 70 && z.h > z.w * 1.8;
+  const availW = Math.max(8, (rot ? z.h : z.w) - padX);
+  const availH = Math.max(8, (rot ? z.w : z.h) - padY);
+  const lines = (z.mapLines && z.mapLines.length) ? z.mapLines : [z.name];
+  const maxLen = Math.max(1, ...lines.map(s => String(s).length));
+  const fs = Math.max(9, Math.min(maxFs, availW / (maxLen * 0.56), availH / (lines.length * 1.22)));
+  return { rot, lines, fs: Math.round(fs * 10) / 10 };
+}
+
+/** สร้างถังใหม่ (pure) */
+function makeBin(typeId, x, y, seq){
+  return {
+    id: 'B' + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    type: TYPE_MAP[typeId] ? typeId : 'green',
+    x: clamp(x, 0, WORLD.w),
+    y: clamp(y, 0, WORLD.h),
+    qty: 1,
+    note: '',
+    no: seq + 1
+  };
+}
+
+/** รหัสจุด เช่น WP-01 */
+function pointCode(no){ return 'WP-' + String(no).padStart(2, '0'); }
+
+/** สรุปยอด (pure) */
+function summarize(bins){
+  const byType = { green:0, blue:0, yellow:0 };
+  const pointsByType = { green:0, blue:0, yellow:0 };
+  const zones = new Set();
+  for (const b of bins){
+    if (byType[b.type] === undefined) continue;
+    byType[b.type] += b.qty;
+    pointsByType[b.type] += 1;
+    const z = zoneAt(b.x, b.y);
+    if (z) zones.add(z.id);
+  }
+  const totalBins = byType.green + byType.blue + byType.yellow;
+  const coverable = ZONES.filter(z => z.kind !== 'phase').length;
+  return {
+    points: bins.length,
+    totalBins,
+    byType,
+    pointsByType,
+    zonesCovered: zones.size,
+    zonesTotal: coverable,
+    coverPct: coverable ? Math.round(zones.size / coverable * 100) : 0
+  };
+}
+
+/** จัดกลุ่มถังตามโซน เรียงตามลำดับจุด (pure) */
+function groupByZone(bins){
+  const map = new Map();
+  for (const b of [...bins].sort((a,c) => a.no - c.no)){
+    const key = zoneLabel(b.x, b.y);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(b);
+  }
+  return [...map.entries()].map(([zone, items]) => ({ zone, items }));
+}
+
+/** วันที่ไทย: เก็บ ค.ศ. ภายใน แสดง พ.ศ. */
+function thaiDate(iso){
+  const d = iso ? new Date(iso) : new Date();
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString('th-TH', { day:'numeric', month:'long', year:'numeric' });
+}
+function isoToday(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
+}
+
+/** โปรเจกชันไอโซเมตริก (pure) */
+function isoPt(x, y, z){
+  z = z || 0;
+  return { X: (x - y) * ISO_A, Y: (x + y) * ISO_B - z };
+}
+
+/** ขอบเขตจริงของภาพไอโซเมตริก (pure) — ใช้ตั้ง viewBox ให้พอดีเนื้อหา ไม่ต้องเดาค่า */
+function isoBounds(pad){
+  pad = pad == null ? 70 : pad;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  const add = (x, y, z) => {
+    const p = isoPt(x, y, z);
+    if (p.X < minX) minX = p.X; if (p.X > maxX) maxX = p.X;
+    if (p.Y < minY) minY = p.Y; if (p.Y > maxY) maxY = p.Y;
+  };
+  const boxes = ZONES.concat([{ x:20, y:60, w:2060, h:980, z:0 }]);
+  for (const b of boxes){
+    for (const zz of [0, b.z || 0]){
+      add(b.x, b.y, zz); add(b.x + b.w, b.y, zz);
+      add(b.x, b.y + b.h, zz); add(b.x + b.w, b.y + b.h, zz);
+    }
+  }
+  return { x: minX - pad, y: minY - pad, w: (maxX - minX) + pad * 2, h: (maxY - minY) + pad * 2 };
+}
+
+/** escape ข้อความก่อนยัดเข้า HTML/SVG */
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ===== 5. RENDER ===== */
+const $ = id => document.getElementById(id);
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+function renderAll(){
+  renderBinTools();
+  renderKpis();
+  renderPointList();
+  render2D();
+  renderIso();
+  sync3D();
+  renderInspector();
+  renderBadge();
+  renderDebug();
+}
+
+/* ---- 5.1 sidebar ---- */
+function renderLegendOnce(){
+  $('legendBox').innerHTML = BIN_TYPES.map(t => `
+    <div class="legend-item">
+      <img src="${BIN_IMG[t.id]}" alt="ถัง${esc(t.label)}">
+      <div>
+        <strong style="color:${t.light}">${esc(t.label)}</strong>
+        <span>${esc(t.desc)}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderBinTools(){
+  const s = summarize(state.bins);
+  $('binTools').innerHTML = BIN_TYPES.map(t => `
+    <button class="bintool bin-${t.id}" data-type="${t.id}" aria-pressed="${ui.armedType === t.id}">
+      <span class="bt-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></span>
+      <img src="${BIN_IMG[t.id]}" alt="">
+      <span class="bt-txt"><strong>${esc(t.label)}</strong><span>${esc(t.desc)}</span></span>
+      <span class="bt-count">${s.byType[t.id]}</span>
+    </button>`).join('');
+}
+
+function renderKpis(){
+  const s = summarize(state.bins);
+  $('kpis').innerHTML = `
+    <div class="kpi"><b>${s.points}</b><span>จุดวางทั้งหมด</span></div>
+    <div class="kpi k-gold"><b>${s.totalBins}</b><span>ถังรวม (ใบ)</span></div>
+    <div class="kpi"><b>${s.zonesCovered}</b><span>พื้นที่ที่มีถัง</span></div>
+    <div class="kpi k-gold"><b>${s.coverPct}%</b><span>ความครอบคลุม</span></div>`;
+}
+
+function renderPointList(){
+  const host = $('pointList');
+  const list = [...state.bins].sort((a,b) => a.no - b.no);
+  $('ptCount').textContent = list.length ? list.length + ' จุด' : '';
+  if (!list.length){
+    host.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.9-7-10a7 7 0 1 1 14 0c0 5.1-7 10-7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>
+      ยังไม่มีจุดวางถัง<br>เลือกประเภทถังด้านบน แล้วคลิกบนแผนผัง</div>`;
+    return;
+  }
+  host.innerHTML = list.map(b => {
+    const t = TYPE_MAP[b.type];
+    return `<button class="point ${ui.selectedId === b.id ? 'is-sel' : ''}" data-id="${b.id}">
+      <span class="dot" style="background:${t.light}"></span>
+      <span class="p-txt"><strong>${pointCode(b.no)} · ${esc(zoneLabel(b.x, b.y))}</strong><span>${esc(t.label)}${b.note ? ' · ' + esc(b.note) : ''}</span></span>
+      <span class="p-qty">${b.qty} ใบ</span>
+    </button>`;
+  }).join('');
+}
+
+function renderBadge(){
+  const badge = $('stageBadge'), txt = $('badgeTxt');
+  if (ui.armedType){
+    badge.classList.add('armed');
+    txt.textContent = 'กำลังวาง: ' + TYPE_MAP[ui.armedType].label + ' — คลิกตำแหน่งบนแผนผัง';
+  } else if (ui.mode === 'delete'){
+    badge.classList.add('armed');
+    txt.textContent = 'โหมดลบ — คลิกถังที่ต้องการลบ';
+  } else {
+    badge.classList.remove('armed');
+    txt.textContent = 'โหมดเลือก — คลิกถังเพื่อแก้ไข · ลากเพื่อย้าย';
+  }
+  const placing = !!ui.armedType;
+  $('svg2d').classList.toggle('placing', placing);
+  $('svgIso').classList.toggle('placing', placing);
+}
+
+/* ---- 5.2 แผนผัง 2 มิติ ---- */
+function zoneFill(kind){
+  if (kind === 'phase') return 'url(#gPhase)';
+  if (kind === 'park')  return 'rgba(27,58,88,.5)';
+  if (kind === 'room')  return 'rgba(45,78,112,.92)';
+  if (kind === 'fac')   return 'url(#gFac)';
+  return 'url(#gBld)';
+}
+
+function map2dDefs(){
+  return `<defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="rgba(200,155,90,.07)" stroke-width="1"/>
+    </pattern>
+    <pattern id="gridBig" width="200" height="200" patternUnits="userSpaceOnUse">
+      <path d="M200 0H0V200" fill="none" stroke="rgba(200,155,90,.12)" stroke-width="1.2"/>
+    </pattern>
+    <linearGradient id="gPhase" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="rgba(224,130,90,.10)"/><stop offset="1" stop-color="rgba(224,130,90,.03)"/>
+    </linearGradient>
+    <linearGradient id="gBld" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A4C6E"/><stop offset="1" stop-color="#1A3552"/>
+    </linearGradient>
+    <linearGradient id="gFac" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#24415F"/><stop offset="1" stop-color="#172F49"/>
+    </linearGradient>
+    <linearGradient id="gSky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0C2137"/><stop offset="1" stop-color="#081524"/>
+    </linearGradient>
+    <filter id="fShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#000" flood-opacity=".55"/>
+    </filter>
+    <filter id="fPin" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#000" flood-opacity=".7"/>
+    </filter>
+  </defs>`;
+}
+
+function render2D(){
+  const svg = $('svg2d');
+  if (!ui.vb['2d']) ui.vb['2d'] = { x:0, y:40, w:WORLD.w, h:WORLD.h - 40 };
+  const vb = ui.vb['2d'];
+  svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  let s = map2dDefs();
+  s += `<rect x="-2000" y="-2000" width="8000" height="8000" fill="url(#gSky)"/>`;
+  s += `<rect x="-2000" y="-2000" width="8000" height="8000" fill="url(#grid)"/>`;
+  s += `<rect x="-2000" y="-2000" width="8000" height="8000" fill="url(#gridBig)"/>`;
+
+  // ── ถนน
+  s += `<g id="roads">`;
+  for (const r of ROADS){
+    const x2 = r.dir === 'h' ? r.x + r.len : r.x;
+    const y2 = r.dir === 'h' ? r.y : r.y + r.len;
+    s += `<line x1="${r.x}" y1="${r.y}" x2="${x2}" y2="${y2}" stroke="#16304C" stroke-width="${ROAD_W}" stroke-linecap="round"/>`;
+    s += `<line x1="${r.x}" y1="${r.y}" x2="${x2}" y2="${y2}" stroke="rgba(200,155,90,.42)" stroke-width="1.6" stroke-dasharray="16 14" stroke-linecap="round"/>`;
+  }
+  s += `</g>`;
+
+  // ── โซน: เฟสก่อน แล้วค่อยอาคาร (ห้องย่อยวาดท้ายสุด)
+  const order = { phase:0, park:1, fac:2, bld:3, room:4 };
+  const zs = [...ZONES].sort((a,b) => order[a.kind] - order[b.kind]);
+  s += `<g id="zones">`;
+  for (const z of zs){
+    const isPhase = z.kind === 'phase';
+    const stroke = isPhase ? 'rgba(224,130,90,.75)' : 'rgba(200,155,90,.55)';
+    const dash = isPhase ? ' stroke-dasharray="22 12"' : '';
+    const rx = z.kind === 'park' ? 4 : (isPhase ? 6 : 9);
+    s += `<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" rx="${rx}"
+            fill="${zoneFill(z.kind)}" stroke="${stroke}" stroke-width="${isPhase ? 2.6 : 2}"${dash}
+            ${isPhase ? '' : 'filter="url(#fShadow)"'}/>`;
+    if (isPhase){
+      s += `<rect x="${z.x + 16}" y="${z.y - 13}" width="${14 + z.name.length * 15}" height="30" rx="6" fill="#0B1B2E" stroke="rgba(224,130,90,.7)" stroke-width="1.6"/>`;
+      s += `<text x="${z.x + 23}" y="${z.y + 8}" fill="#E0825A" font-size="19" font-weight="700" letter-spacing="3" font-family="'IBM Plex Sans Thai',sans-serif">${esc(z.name)}</text>`;
+    } else {
+      s += zoneText2d(z);
+    }
+  }
+  s += `</g>`;
+
+  // ── เข็มทิศ + สเกล
+  s += compassSvg(1910, 150) + scaleBarSvg(140, 1035);
+
+  // ── ถังขยะ
+  s += `<g id="pins2d">`;
+  for (const b of [...state.bins].sort((a, c) => a.y - c.y)){
+    s += pin2d(b);
+  }
+  s += `</g>`;
+
+  svg.innerHTML = s;
+}
+
+/** ป้ายชื่อโซนบนผัง 2 มิติ — ย่อฟอนต์/ตัดบรรทัด/หมุน ให้อยู่ในกรอบเสมอ */
+function zoneText2d(z){
+  const maxFs = z.kind === 'room' ? 18 : (z.kind === 'park' ? 17 : 22);
+  const { rot, lines, fs } = fitLabel(z, maxFs);
+  const cx = z.x + z.w/2, cy = z.y + z.h/2;
+  const fill = z.kind === 'park' ? '#9DB0C4' : '#E6E8EB';
+  const wgt = z.kind === 'bld' ? 600 : 500;
+  const lh = fs * 1.22;
+  const y0 = cy - (lines.length - 1) * lh / 2 + fs * 0.34;
+  const txt = lines.map((l, i) =>
+    `<text x="${cx}" y="${(y0 + i * lh).toFixed(1)}" fill="${fill}" font-size="${fs}" font-weight="${wgt}"
+       text-anchor="middle" font-family="'IBM Plex Sans Thai',sans-serif">${esc(l)}</text>`).join('');
+  return rot ? `<g transform="rotate(-90 ${cx} ${cy})">${txt}</g>` : txt;
+}
+
+function pin2d(b){
+  const t = TYPE_MAP[b.type];
+  const sel = ui.selectedId === b.id;
+  const W = 44, H = 62;
+  return `<g class="pin" data-id="${b.id}" style="cursor:pointer">
+    <ellipse cx="${b.x}" cy="${b.y}" rx="24" ry="9" fill="rgba(0,0,0,.5)"/>
+    <circle cx="${b.x}" cy="${b.y}" r="${sel ? 30 : 24}" fill="none" stroke="${t.light}" stroke-width="${sel ? 3.4 : 2.2}" opacity="${sel ? .95 : .55}"/>
+    ${sel ? `<circle cx="${b.x}" cy="${b.y}" r="38" fill="none" stroke="#E0825A" stroke-width="2" stroke-dasharray="7 6" opacity=".9"/>` : ''}
+    <image href="${BIN_IMG[b.type]}" x="${b.x - W/2}" y="${b.y - H + 7}" width="${W}" height="${H}" filter="url(#fPin)" preserveAspectRatio="xMidYMax meet"/>
+    <g transform="translate(${b.x + 17},${b.y - H + 6})">
+      <rect x="0" y="0" width="${b.qty > 9 ? 34 : 27}" height="22" rx="11" fill="#0B1B2E" stroke="${t.light}" stroke-width="1.8"/>
+      <text x="${(b.qty > 9 ? 34 : 27)/2}" y="16" fill="${t.light}" font-size="13" font-weight="700" text-anchor="middle" font-family="'IBM Plex Sans Thai',sans-serif">${b.qty}</text>
+    </g>
+    <text x="${b.x}" y="${b.y + 27}" fill="#C4CEDA" font-size="14" font-weight="600" text-anchor="middle" font-family="'IBM Plex Sans Thai',sans-serif"
+      style="paint-order:stroke" stroke="#08121F" stroke-width="4" stroke-linejoin="round">${pointCode(b.no)}</text>
+    <circle cx="${b.x}" cy="${b.y}" r="34" fill="transparent"/>
+  </g>`;
+}
+
+function compassSvg(cx, cy){
+  return `<g opacity=".92">
+    <circle cx="${cx}" cy="${cy}" r="46" fill="rgba(8,18,31,.75)" stroke="rgba(200,155,90,.45)" stroke-width="1.6"/>
+    <path d="M${cx} ${cy-34} L${cx+11} ${cy+4} L${cx} ${cy-4} L${cx-11} ${cy+4} Z" fill="#E0825A"/>
+    <path d="M${cx} ${cy+34} L${cx+11} ${cy-4} L${cx} ${cy+4} L${cx-11} ${cy-4} Z" fill="#3C5A7C"/>
+    <text x="${cx}" y="${cy-50}" fill="#C89B5A" font-size="17" font-weight="700" text-anchor="middle" font-family="'Playfair Display',serif">N</text>
+  </g>`;
+}
+
+function scaleBarSvg(x, y){
+  return `<g opacity=".85">
+    <rect x="${x}" y="${y}" width="200" height="9" fill="none" stroke="rgba(200,155,90,.55)" stroke-width="1.4"/>
+    <rect x="${x}" y="${y}" width="100" height="9" fill="rgba(200,155,90,.55)"/>
+    <text x="${x}" y="${y+26}" fill="#93A3B5" font-size="13" font-family="'IBM Plex Sans Thai',sans-serif">0</text>
+    <text x="${x+200}" y="${y+26}" fill="#93A3B5" font-size="13" text-anchor="end" font-family="'IBM Plex Sans Thai',sans-serif">สเกลอ้างอิงจากผังต้นฉบับ</text>
+  </g>`;
+}
+
+/* ---- 5.3 ไอโซเมตริก 2.5 มิติ ---- */
+function shade(hex, f){
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.round(Math.min(255, ((n >> 16) & 255) * f));
+  const g = Math.round(Math.min(255, ((n >> 8) & 255) * f));
+  const b = Math.round(Math.min(255, (n & 255) * f));
+  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function isoPrism(z, topColor){
+  const h = z.z;
+  const A = isoPt(z.x,       z.y,       h), B = isoPt(z.x + z.w, z.y,       h);
+  const C = isoPt(z.x + z.w, z.y + z.h, h), D = isoPt(z.x,       z.y + z.h, h);
+  const Bb = isoPt(z.x + z.w, z.y, 0), Cb = isoPt(z.x + z.w, z.y + z.h, 0), Db = isoPt(z.x, z.y + z.h, 0);
+  const top   = `${A.X},${A.Y} ${B.X},${B.Y} ${C.X},${C.Y} ${D.X},${D.Y}`;
+  const right = `${B.X},${B.Y} ${Bb.X},${Bb.Y} ${Cb.X},${Cb.Y} ${C.X},${C.Y}`;
+  const left  = `${D.X},${D.Y} ${Db.X},${Db.Y} ${Cb.X},${Cb.Y} ${C.X},${C.Y}`;
+  const stroke = 'rgba(200,155,90,.5)';
+  return `<polygon points="${left}"  fill="${shade(topColor,.58)}" stroke="${stroke}" stroke-width="1.3"/>
+          <polygon points="${right}" fill="${shade(topColor,.78)}" stroke="${stroke}" stroke-width="1.3"/>
+          <polygon points="${top}"   fill="${topColor}" stroke="rgba(200,155,90,.75)" stroke-width="1.5"/>`;
+}
+
+function isoFlat(z, fill, stroke, dash){
+  const A = isoPt(z.x, z.y, 0), B = isoPt(z.x + z.w, z.y, 0),
+        C = isoPt(z.x + z.w, z.y + z.h, 0), D = isoPt(z.x, z.y + z.h, 0);
+  return `<polygon points="${A.X},${A.Y} ${B.X},${B.Y} ${C.X},${C.Y} ${D.X},${D.Y}"
+    fill="${fill}" stroke="${stroke}" stroke-width="2"${dash ? ' stroke-dasharray="20 12"' : ''}/>`;
+}
+
+function renderIso(){
+  const svg = $('svgIso');
+  if (!ui.vb['iso']) ui.vb['iso'] = isoBounds();
+  const vb = ui.vb['iso'];
+  svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  let s = `<defs>
+    <linearGradient id="isoSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0D2439"/><stop offset="1" stop-color="#07111D"/>
+    </linearGradient>
+    <filter id="isoShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".55"/>
+    </filter>
+  </defs>
+  <rect x="-4000" y="-4000" width="12000" height="12000" fill="url(#isoSky)"/>`;
+
+  // พื้นฐาน (ground plate)
+  const g = { x:20, y:60, w:2060, h:980 };
+  s += isoFlat(g, 'rgba(19,42,66,.85)', 'rgba(200,155,90,.3)', false);
+
+  // เส้นกริดบนพื้น
+  s += `<g opacity=".5">`;
+  for (let gx = g.x; gx <= g.x + g.w; gx += 100){
+    const a = isoPt(gx, g.y, 0), b = isoPt(gx, g.y + g.h, 0);
+    s += `<line x1="${a.X}" y1="${a.Y}" x2="${b.X}" y2="${b.Y}" stroke="rgba(200,155,90,.10)" stroke-width="1"/>`;
+  }
+  for (let gy = g.y; gy <= g.y + g.h; gy += 100){
+    const a = isoPt(g.x, gy, 0), b = isoPt(g.x + g.w, gy, 0);
+    s += `<line x1="${a.X}" y1="${a.Y}" x2="${b.X}" y2="${b.Y}" stroke="rgba(200,155,90,.10)" stroke-width="1"/>`;
+  }
+  s += `</g>`;
+
+  // ถนน (แบน)
+  for (const r of ROADS){
+    const rect = r.dir === 'h'
+      ? { x:r.x, y:r.y - ROAD_W/2, w:r.len, h:ROAD_W }
+      : { x:r.x - ROAD_W/2, y:r.y, w:ROAD_W, h:r.len };
+    s += isoFlat(rect, '#1A3450', 'rgba(200,155,90,.28)', false);
+  }
+
+  // เฟส (แบน) วาดก่อนอาคาร
+  for (const z of ZONES.filter(z => z.kind === 'phase')){
+    s += isoFlat(z, 'rgba(224,130,90,.09)', 'rgba(224,130,90,.6)', true);
+    const c = isoPt(z.x + 20, z.y + 20, 0);
+    s += `<text x="${c.X}" y="${c.Y}" fill="#E0825A" font-size="30" font-weight="700" letter-spacing="4"
+            font-family="'IBM Plex Sans Thai',sans-serif" style="paint-order:stroke" stroke="#07111D" stroke-width="6">${esc(z.name)}</text>`;
+  }
+
+  // ── painter's algorithm: วัตถุทั้งหมด (อาคาร + ถัง) เรียงตาม depth = x+y
+  const items = [];
+  for (const z of ZONES){
+    if (z.kind === 'phase') continue;
+    const color = z.kind === 'park' ? '#24405C' : (z.kind === 'room' ? '#39628C' : '#2F5479');
+    items.push({ depth: z.x + z.y + (z.kind === 'room' ? 6 : 0), svg: isoZone(z, color) });
+  }
+  for (const b of state.bins) items.push({ depth: b.x + b.y + 4, svg: isoBin(b) });
+  items.sort((a, b) => a.depth - b.depth);
+  s += `<g>` + items.map(i => i.svg).join('') + `</g>`;
+
+  svg.innerHTML = s;
+}
+
+function isoZone(z, color){
+  let out = isoPrism(z, color);
+  const c = isoPt(z.x + z.w/2, z.y + z.h/2, z.z);
+  // หน้าบนของปริซึมเป็นรูปสี่เหลี่ยมขนมเปียกปูน — ความกว้างที่ใช้ได้ ≈ (w+h)*cos30 * 0.5
+  const lines = (z.mapLines && z.mapLines.length) ? z.mapLines : [z.name];
+  const maxLen = Math.max(1, ...lines.map(s => String(s).length));
+  const availW = (z.w + z.h) * ISO_A * 0.5;
+  const fs = Math.max(13, Math.min(30, availW / (maxLen * 0.56)));
+  const lh = fs * 1.2;
+  const y0 = c.Y - (lines.length - 1) * lh / 2 + fs * 0.34;
+  out += lines.map((l, i) =>
+    `<text x="${c.X}" y="${(y0 + i * lh).toFixed(1)}" fill="#EAF0F7" font-size="${fs.toFixed(1)}" font-weight="600" text-anchor="middle"
+      font-family="'IBM Plex Sans Thai',sans-serif" style="paint-order:stroke" stroke="rgba(7,17,29,.85)" stroke-width="5" stroke-linejoin="round">${esc(l)}</text>`).join('');
+  return out;
+}
+
+function isoBin(b){
+  const t = TYPE_MAP[b.type];
+  const p = isoPt(b.x, b.y, 0);
+  const sel = ui.selectedId === b.id;
+  const W = 62, H = 88;
+  return `<g class="pin" data-id="${b.id}" style="cursor:pointer">
+    <ellipse cx="${p.X}" cy="${p.Y}" rx="30" ry="15" fill="rgba(0,0,0,.55)"/>
+    ${sel ? `<ellipse cx="${p.X}" cy="${p.Y}" rx="46" ry="23" fill="none" stroke="#E0825A" stroke-width="3" stroke-dasharray="9 7"/>` : ''}
+    <ellipse cx="${p.X}" cy="${p.Y}" rx="32" ry="16" fill="none" stroke="${t.light}" stroke-width="${sel ? 3.2 : 2}" opacity=".8"/>
+    <image href="${BIN_IMG[b.type]}" x="${p.X - W/2}" y="${p.Y - H + 9}" width="${W}" height="${H}" filter="url(#isoShadow)" preserveAspectRatio="xMidYMax meet"/>
+    <text x="${p.X}" y="${p.Y + 36}" fill="#DCE5EF" font-size="20" font-weight="700" text-anchor="middle"
+      font-family="'IBM Plex Sans Thai',sans-serif" style="paint-order:stroke" stroke="#07111D" stroke-width="5" stroke-linejoin="round">${pointCode(b.no)}${b.qty > 1 ? ' ×' + b.qty : ''}</text>
+    <ellipse cx="${p.X}" cy="${p.Y - 30}" rx="34" ry="46" fill="transparent"/>
+  </g>`;
+}
+
+/* ---- 5.4 inspector ---- */
+function renderInspector(){
+  const box = $('inspector');
+  const b = state.bins.find(x => x.id === ui.selectedId);
+  if (!b){ box.classList.remove('show'); return; }
+  const t = TYPE_MAP[b.type];
+  box.classList.add('show');
+  $('iImg').src = BIN_IMG[b.type];
+  $('iTitle').textContent = pointCode(b.no) + ' · ' + zoneLabel(b.x, b.y);
+  $('iQty').value = b.qty;
+  $('iNote').value = b.note;
+  $('iTypes').innerHTML = BIN_TYPES.map(x => `
+    <button data-type="${x.id}" aria-pressed="${x.id === b.type}" title="${esc(x.label)}" aria-label="${esc(x.label)}">
+      <i style="background:${x.light}"></i></button>`).join('');
+}
+
+/* ---- 5.5 debug panel (?debug=1) ---- */
+function renderDebug(){
+  if (!ui.debug) return;
+  const s = summarize(state.bins);
+  const sel = state.bins.find(b => b.id === ui.selectedId);
+  $('debugBody').innerHTML = `
+    view=<b>${ui.view}</b> mode=<b>${ui.mode}</b> armed=<b>${ui.armedType || '-'}</b><br>
+    bins=<b>${state.bins.length}</b> seq=<b>${state.seq}</b> undo=<b>${ui.history.length}</b><br>
+    total=<b>${s.totalBins}</b> zones=<b>${s.zonesCovered}/${s.zonesTotal}</b><br>
+    vb2d=<b>${ui.vb['2d'] ? ui.vb['2d'].x.toFixed(0)+','+ui.vb['2d'].y.toFixed(0)+' '+ui.vb['2d'].w.toFixed(0)+'x'+ui.vb['2d'].h.toFixed(0) : '-'}</b><br>
+    vbIso=<b>${ui.vb['iso'] ? ui.vb['iso'].x.toFixed(0)+','+ui.vb['iso'].y.toFixed(0)+' '+ui.vb['iso'].w.toFixed(0)+'x'+ui.vb['iso'].h.toFixed(0) : '-'}</b><br>
+    three=<b>${ui.three ? 'active(' + ui.three.binGroup.children.length + ' meshes)' : (window.__threeError ? 'FAILED' : (window.__three ? 'lib-loaded/idle' : 'loading'))}</b><br>
+    sel=<b>${sel ? pointCode(sel.no)+' ('+sel.x.toFixed(0)+','+sel.y.toFixed(0)+') '+sel.type+' x'+sel.qty : '-'}</b><br>
+    zoneAt(sel)=<b>${sel ? zoneLabel(sel.x, sel.y) : '-'}</b><br>
+    lsBytes=<b>${(localStorage.getItem(LS_KEY) || '').length}</b> loadErr=<b>${ui.loadError || 'none'}</b>`;
+}
+
+/* ===== 6. EVENT HANDLERS ===== */
+
+/* --- 6.1 พิกัดหน้าจอ → พิกัดโลก --- */
+function screenToWorld(svg, evt){
+  const pt = svg.createSVGPoint();
+  pt.x = evt.clientX; pt.y = evt.clientY;
+  const m = svg.getScreenCTM();
+  if (!m) return null;
+  return pt.matrixTransform(m.inverse());
+}
+/** ไอโซเมตริก: แปลงพิกัดหน้าจอกลับเป็นพิกัดโลก (ผกผันของ isoPt ที่ z=0) */
+function isoInverse(X, Y){
+  return { x: (X / ISO_A + Y / ISO_B) / 2, y: (Y / ISO_B - X / ISO_A) / 2 };
+}
+
+function addBinAt(x, y){
+  if (x < 0 || y < 0 || x > WORLD.w || y > WORLD.h) return;
+  pushHistory();
+  state.seq += 1;
+  const b = makeBin(ui.armedType, x, y, state.seq - 1);
+  state.bins.push(b);
+  ui.selectedId = b.id;
+  save(); renderAll();
+}
+
+function deleteBin(id){
+  const i = state.bins.findIndex(b => b.id === id);
+  if (i < 0) return;
+  pushHistory();
+  state.bins.splice(i, 1);
+  if (ui.selectedId === id) ui.selectedId = null;
+  save(); renderAll();
+}
+
+function selectBin(id){ ui.selectedId = id; renderAll(); }
+
+/* --- 6.2 แผงเครื่องมือ --- */
+$('binTools').addEventListener('click', e => {
+  const btn = e.target.closest('.bintool'); if (!btn) return;
+  const t = btn.dataset.type;
+  ui.armedType = (ui.armedType === t) ? null : t;
+  if (ui.armedType) ui.mode = 'select';
+  syncModeButtons(); renderAll();
+});
+
+function syncModeButtons(){
+  $('mDrag').setAttribute('aria-pressed', String(ui.mode === 'select'));
+  $('mDel').setAttribute('aria-pressed',  String(ui.mode === 'delete'));
+}
+$('mDrag').addEventListener('click', () => { ui.mode = 'select'; syncModeButtons(); renderAll(); });
+$('mDel').addEventListener('click', () => { ui.mode = 'delete'; ui.armedType = null; syncModeButtons(); renderAll(); });
+
+$('pointList').addEventListener('click', e => {
+  const btn = e.target.closest('.point'); if (!btn) return;
+  selectBin(btn.dataset.id);
+});
+
+/* --- 6.3 แท็บมุมมอง --- */
+document.querySelectorAll('.viewtabs button').forEach(btn => {
+  btn.addEventListener('click', () => setView(btn.dataset.view));
+});
+function setView(v){
+  ui.view = v;
+  document.querySelectorAll('.viewtabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
+  document.querySelectorAll('.stage-view').forEach(p => p.classList.toggle('is-active', p.id === 'view-' + v));
+  if (v === '3d') { ensure3D(); resize3D(); }
+  renderDebug();
+}
+$('btnGoIso').addEventListener('click', () => setView('iso'));
+
+/* --- 6.4 การโต้ตอบบน SVG (2D + ISO) --- */
+function bindSvg(svg, key){
+  let moved = false, downPt = null, panStart = null, dragBin = null;
+
+  svg.addEventListener('pointerdown', e => {
+    if (e.button === 2) return;
+    moved = false;
+    const p = screenToWorld(svg, e); if (!p) return;
+    downPt = { sx:e.clientX, sy:e.clientY };
+    const pinEl = e.target.closest('.pin');
+
+    if (pinEl && ui.mode === 'select' && !ui.armedType){
+      dragBin = { id: pinEl.dataset.id, start: p };
+      selectBin(pinEl.dataset.id);
+    } else if (!pinEl){
+      panStart = { vb: Object.assign({}, ui.vb[key]), sx:e.clientX, sy:e.clientY };
+      if (!ui.armedType) svg.classList.add('dragging');
+    }
+    svg.setPointerCapture(e.pointerId);
+  });
+
+  svg.addEventListener('pointermove', e => {
+    if (!downPt) return;
+    const dx = e.clientX - downPt.sx, dy = e.clientY - downPt.sy;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+    if (!moved) return;
+
+    if (dragBin){
+      const p = screenToWorld(svg, e); if (!p) return;
+      const w = key === 'iso' ? isoInverse(p.x, p.y) : { x:p.x, y:p.y };
+      const b = state.bins.find(x => x.id === dragBin.id);
+      if (b){ b.x = clamp(w.x, 0, WORLD.w); b.y = clamp(w.y, 0, WORLD.h); renderAll(); }
+    } else if (panStart){
+      const rect = svg.getBoundingClientRect();
+      const sx = panStart.vb.w / rect.width, sy = panStart.vb.h / rect.height;
+      ui.vb[key] = {
+        x: panStart.vb.x - dx * sx, y: panStart.vb.y - dy * sy,
+        w: panStart.vb.w, h: panStart.vb.h
+      };
+      applyVb(svg, key);
+    }
+  });
+
+  svg.addEventListener('pointerup', e => {
+    svg.classList.remove('dragging');
+    const wasDrag = dragBin, wasMoved = moved;
+    if (dragBin && moved){ pushHistoryDebounced(); save(); }
+    dragBin = null; panStart = null; downPt = null;
+
+    if (wasMoved) { renderDebug(); return; }
+
+    const pinEl = e.target.closest('.pin');
+    if (pinEl){
+      if (ui.mode === 'delete') deleteBin(pinEl.dataset.id);
+      else selectBin(pinEl.dataset.id);
+      return;
+    }
+    if (ui.armedType && !wasDrag){
+      const p = screenToWorld(svg, e); if (!p) return;
+      const w = key === 'iso' ? isoInverse(p.x, p.y) : { x:p.x, y:p.y };
+      addBinAt(w.x, w.y);
+      return;
+    }
+    if (ui.selectedId){ ui.selectedId = null; renderAll(); }
+  });
+
+  svg.addEventListener('pointercancel', () => { dragBin = null; panStart = null; downPt = null; svg.classList.remove('dragging'); });
+
+  svg.addEventListener('wheel', e => {
+    e.preventDefault();
+    const vb = ui.vb[key]; if (!vb) return;
+    const rect = svg.getBoundingClientRect();
+    const rx = (e.clientX - rect.left) / rect.width, ry = (e.clientY - rect.top) / rect.height;
+    const f = e.deltaY > 0 ? 1.14 : 1 / 1.14;
+    const nw = clamp(vb.w * f, 200, WORLD.w * 6), nh = vb.h * (nw / vb.w);
+    ui.vb[key] = { x: vb.x + (vb.w - nw) * rx, y: vb.y + (vb.h - nh) * ry, w: nw, h: nh };
+    applyVb(svg, key);
+  }, { passive:false });
+
+  svg.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+function applyVb(svg, key){
+  const vb = ui.vb[key];
+  svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  renderDebug();
+}
+
+let histTimer = null;
+function pushHistoryDebounced(){
+  clearTimeout(histTimer);
+  histTimer = setTimeout(() => {}, 1);   // ประวัติถูก push ตอน pointerdown ของการลากแล้ว
+}
+
+/* --- 6.5 ปุ่มบนเวที --- */
+function zoomBy(f){
+  if (ui.view === '3d'){
+    if (ui.three) { ui.three.camera.position.multiplyScalar(f); ui.three.controls.update(); }
+    return;
+  }
+  const key = ui.view, vb = ui.vb[key]; if (!vb) return;
+  const nw = clamp(vb.w * f, 200, WORLD.w * 6), nh = vb.h * (nw / vb.w);
+  ui.vb[key] = { x: vb.x + (vb.w - nw)/2, y: vb.y + (vb.h - nh)/2, w:nw, h:nh };
+  applyVb($(key === 'iso' ? 'svgIso' : 'svg2d'), key);
+}
+$('btnZoomIn').addEventListener('click', () => zoomBy(1/1.25));
+$('btnZoomOut').addEventListener('click', () => zoomBy(1.25));
+$('btnFit').addEventListener('click', () => {
+  if (ui.view === '3d'){ reset3DCamera(); return; }
+  ui.vb['2d'] = { x:0, y:40, w:WORLD.w, h:WORLD.h - 40 };
+  ui.vb['iso'] = isoBounds();
+  render2D(); renderIso();
+});
+$('btnUndo').addEventListener('click', () => { if (!undo()) flashBadge('ไม่มีรายการให้ย้อนกลับ'); });
+
+let badgeTimer = null;
+function flashBadge(msg){
+  const t = $('badgeTxt'); const old = t.textContent;
+  t.textContent = msg;
+  clearTimeout(badgeTimer);
+  badgeTimer = setTimeout(renderBadge, 1800);
+}
+
+/* --- 6.6 inspector --- */
+$('iClose').addEventListener('click', () => { ui.selectedId = null; renderAll(); });
+$('iDel').addEventListener('click', () => { if (ui.selectedId) deleteBin(ui.selectedId); });
+$('iTypes').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-type]'); if (!btn) return;
+  const b = state.bins.find(x => x.id === ui.selectedId); if (!b) return;
+  pushHistory(); b.type = btn.dataset.type; save(); renderAll();
+});
+function setQty(v){
+  const b = state.bins.find(x => x.id === ui.selectedId); if (!b) return;
+  pushHistory(); b.qty = clampInt(v, 1, 99, 1); save(); renderAll();
+}
+$('iPlus').addEventListener('click', () => { const b = state.bins.find(x => x.id === ui.selectedId); if (b) setQty(b.qty + 1); });
+$('iMinus').addEventListener('click', () => { const b = state.bins.find(x => x.id === ui.selectedId); if (b) setQty(b.qty - 1); });
+$('iQty').addEventListener('change', e => setQty(e.target.value));
+$('iNote').addEventListener('input', e => {
+  const b = state.bins.find(x => x.id === ui.selectedId); if (!b) return;
+  b.note = e.target.value.slice(0, 120); save(); renderPointList();
+});
+
+/* --- 6.7 ข้อมูลเอกสาร --- */
+[['mDoc','docNo'],['mBy','preparedBy'],['mDept','dept'],['mRev','rev'],['mNote','note']].forEach(([el, key]) => {
+  $(el).addEventListener('input', e => { state.meta[key] = e.target.value; save(); });
+});
+
+/* --- 6.8 สำรอง / กู้คืน / ล้าง --- */
+$('btnSave').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'hamer-waste-layout-' + isoToday() + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+$('btnLoad').addEventListener('click', () => $('fileIn').click());
+$('fileIn').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = migrate(JSON.parse(r.result));
+      if (!d) throw new Error('รูปแบบไฟล์ไม่ถูกต้อง');
+      if (!confirm('กู้คืนข้อมูลจากไฟล์นี้? ข้อมูลจุดวางถังปัจจุบัน ' + state.bins.length + ' จุด จะถูกแทนที่\n(กด "ย้อนกลับ" บนแผนผังเพื่อเรียกคืนได้)')) return;
+      pushHistory();
+      state = d;
+      ui.selectedId = null;
+      save(); fillMetaInputs(); renderAll();
+      flashBadge('กู้คืนข้อมูลแล้ว ' + state.bins.length + ' จุด');
+    } catch (err){ alert('อ่านไฟล์ไม่สำเร็จ: ' + err.message); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+});
+$('btnClear').addEventListener('click', () => {
+  if (!state.bins.length) { flashBadge('ยังไม่มีถังให้ล้าง'); return; }
+  if (!confirm('ล้างจุดวางถังทั้งหมด ' + state.bins.length + ' จุด?\nข้อมูลเอกสาร (ผู้จัดทำ/เลขที่) จะยังอยู่ และกด "ย้อนกลับ" เรียกคืนได้')) return;
+  pushHistory();
+  state.bins = []; state.seq = 0; ui.selectedId = null;
+  save(); renderAll();
+});
+
+/* --- 6.9 คีย์ลัด --- */
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+  if (e.key === 'Escape'){
+    if ($('modal').classList.contains('show')) closeModal();
+    else if (ui.armedType){ ui.armedType = null; renderAll(); }
+    else if (ui.selectedId){ ui.selectedId = null; renderAll(); }
+  }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && ui.selectedId){ e.preventDefault(); deleteBin(ui.selectedId); }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); undo(); }
+  if (e.key === '1') { ui.armedType = ui.armedType === 'green'  ? null : 'green';  renderAll(); }
+  if (e.key === '2') { ui.armedType = ui.armedType === 'blue'   ? null : 'blue';   renderAll(); }
+  if (e.key === '3') { ui.armedType = ui.armedType === 'yellow' ? null : 'yellow'; renderAll(); }
+});
+
+/* ═══════════ 3D (three.js ผ่าน CDN — ถ้าโหลดไม่ได้จะ fallback อัตโนมัติ) ═══════════ */
+function ensure3D(){
+  if (ui.three || !window.__three) {
+    if (!window.__three && window.__threeError) $('fallback3d').classList.add('show');
+    return;
+  }
+  const { THREE, OrbitControls } = window.__three;
+  const host = $('wrap3d');
+  const W = host.clientWidth || 900, H = host.clientHeight || 560;
+
+  const renderer = new THREE.WebGLRenderer({ antialias:true, preserveDrawingBuffer:true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(W, H);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  host.insertBefore(renderer.domElement, host.firstChild);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#08121F');
+  scene.fog = new THREE.Fog('#08121F', 26, 52);
+
+  const camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 400);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.07;
+  controls.maxPolarAngle = Math.PI/2 - 0.04;
+  controls.minDistance = 4; controls.maxDistance = 60;
+
+  // แสง
+  scene.add(new THREE.HemisphereLight(0x9DBDE8, 0x0B1B2E, 0.55));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+  const sun = new THREE.DirectionalLight(0xFFE2C0, 1.25);
+  sun.position.set(9, 16, 7);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  const d = 16;
+  sun.shadow.camera.left = -d; sun.shadow.camera.right = d;
+  sun.shadow.camera.top = d;   sun.shadow.camera.bottom = -d;
+  sun.shadow.camera.far = 60;
+  scene.add(sun);
+  const rim = new THREE.DirectionalLight(0xE0825A, 0.4);
+  rim.position.set(-10, 6, -8);
+  scene.add(rim);
+
+  const root = new THREE.Group();
+  root.position.set(-WORLD.w/200, 0, -WORLD.h/200);
+  scene.add(root);
+
+  // พื้น
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(WORLD.w/100 + 6, WORLD.h/100 + 6),
+    new THREE.MeshStandardMaterial({ color:0x0E2136, roughness:0.96, metalness:0.02 })
+  );
+  ground.rotation.x = -Math.PI/2;
+  ground.position.set(WORLD.w/200, 0, WORLD.h/200);
+  ground.receiveShadow = true;
+  root.add(ground);
+
+  const grid = new THREE.GridHelper(WORLD.w/100 + 6, 46, 0x1B3A58, 0x14293E);
+  grid.position.set(WORLD.w/200, 0.012, WORLD.h/200);
+  root.add(grid);
+
+  // ถนน
+  const roadMat = new THREE.MeshStandardMaterial({ color:0x1A3450, roughness:0.9 });
+  for (const r of ROADS){
+    const w = (r.dir === 'h' ? r.len : ROAD_W) / 100;
+    const h = (r.dir === 'h' ? ROAD_W : r.len) / 100;
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.03, h), roadMat);
+    const cx = (r.dir === 'h' ? r.x + r.len/2 : r.x) / 100;
+    const cz = (r.dir === 'h' ? r.y : r.y + r.len/2) / 100;
+    m.position.set(cx, 0.016, cz);
+    m.receiveShadow = true;
+    root.add(m);
+  }
+
+  // เฟส (แผ่นบาง) + อาคาร
+  const edgeMat = new THREE.LineBasicMaterial({ color:0xC89B5A, transparent:true, opacity:0.55 });
+  for (const z of ZONES){
+    if (z.kind === 'phase'){
+      const m = new THREE.Mesh(
+        new THREE.BoxGeometry(z.w/100, 0.05, z.h/100),
+        new THREE.MeshStandardMaterial({ color:0x15304B, roughness:0.95 })
+      );
+      m.position.set((z.x + z.w/2)/100, 0.025, (z.y + z.h/2)/100);
+      m.receiveShadow = true;
+      root.add(m);
+      const eg = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color:0xE0825A, transparent:true, opacity:0.75 }));
+      eg.position.copy(m.position);
+      root.add(eg);
+      continue;
+    }
+    const hgt = z.z / 100;
+    const geo = new THREE.BoxGeometry(z.w/100, hgt, z.h/100);
+    const col = z.kind === 'park' ? 0x1F3A56 : (z.kind === 'room' ? 0x37608A : 0x2C5077);
+    const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color:col, roughness:0.72, metalness:0.06 }));
+    m.position.set((z.x + z.w/2)/100, hgt/2 + 0.03, (z.y + z.h/2)/100);
+    m.castShadow = true; m.receiveShadow = true;
+    root.add(m);
+    const eg = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat);
+    eg.position.copy(m.position);
+    root.add(eg);
+    // ห้องที่ซ้อนในอาคารอื่น ยกป้ายสูงขึ้นกันทับ · ความกว้างป้ายจำกัดตามความกว้างอาคาร
+    const lblY = hgt + (z.kind === 'room' ? 0.62 : 0.28);
+    root.add(makeLabel(THREE, z.name, (z.x + z.w/2)/100, lblY, (z.y + z.h/2)/100, 0.27, Math.max(0.75, z.w/100 * 1.15)));
+  }
+
+  const binGroup = new THREE.Group();
+  root.add(binGroup);
+
+  camera.position.set(0, 9.6, 13.2);
+  controls.target.set(0, 0, 0);
+  controls.update();
+
+  // คลิกพื้นเพื่อวางถัง / คลิกถังเพื่อเลือก
+  const ray = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  let downXY = null;
+  renderer.domElement.addEventListener('pointerdown', e => { downXY = { x:e.clientX, y:e.clientY }; });
+  renderer.domElement.addEventListener('pointerup', e => {
+    if (!downXY) return;
+    const moved = Math.abs(e.clientX - downXY.x) > 4 || Math.abs(e.clientY - downXY.y) > 4;
+    downXY = null;
+    if (moved || e.button === 2) return;
+    const r = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    mouse.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    ray.setFromCamera(mouse, camera);
+
+    const hitBin = ray.intersectObjects(binGroup.children, true)[0];
+    if (hitBin){
+      let o = hitBin.object; while (o && !o.userData.binId) o = o.parent;
+      if (o){
+        if (ui.mode === 'delete') deleteBin(o.userData.binId);
+        else selectBin(o.userData.binId);
+        return;
+      }
+    }
+    if (ui.armedType){
+      const hit = ray.intersectObject(ground, false)[0];
+      if (hit){
+        const lp = root.worldToLocal(hit.point.clone());
+        addBinAt(lp.x * 100, lp.z * 100);
+      }
+      return;
+    }
+    if (ui.selectedId){ ui.selectedId = null; renderAll(); }
+  });
+  renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
+
+  ui.three = { THREE, scene, camera, renderer, controls, root, binGroup, ground };
+
+  (function loop(){
+    requestAnimationFrame(loop);
+    controls.update();
+    renderer.render(scene, camera);
+  })();
+
+  sync3D();
+}
+
+/** ป้ายลอยใน 3D — ขนาด canvas ผูกกับความยาวข้อความจริง ตัวอักษรจึงสูงเท่ากันทุกป้าย
+ *  maxW จำกัดความกว้างตามอาคาร เพื่อไม่ให้ป้ายอาคารเล็กล้นไปทับอาคารข้างเคียง */
+function makeLabel(THREE, text, x, y, z, worldH, maxW){
+  worldH = worldH || 0.30;
+  maxW = maxW || 2.4;
+  const fs = 40, pad = 14, dpr = 2;
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = `600 ${fs}px "IBM Plex Sans Thai", sans-serif`;
+  const tw = Math.max(20, Math.ceil(meas.measureText(text).width) + pad * 2);
+  const th = Math.ceil(fs * 1.5);
+  const c = document.createElement('canvas'); c.width = tw*dpr; c.height = th*dpr;
+  const g = c.getContext('2d'); g.scale(dpr, dpr);
+  g.font = `600 ${fs}px "IBM Plex Sans Thai", sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = 8; g.strokeStyle = 'rgba(8,18,31,.92)'; g.lineJoin = 'round';
+  g.strokeText(text, tw/2, th/2);
+  g.fillStyle = '#EAF0F7';
+  g.fillText(text, tw/2, th/2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthTest:true }));
+  let h = worldH, w = h * (tw / th);
+  if (w > maxW){ w = maxW; h = w * (th / tw); }
+  sp.scale.set(w, h, 1);
+  sp.position.set(x, y, z);
+  return sp;
+}
+
+function makeBinMesh(THREE, b, selected){
+  const t = TYPE_MAP[b.type];
+  const g = new THREE.Group();
+  const bodyMat = new THREE.MeshStandardMaterial({ color:new THREE.Color(t.body), roughness:0.42, metalness:0.06 });
+  const lidMat  = new THREE.MeshStandardMaterial({ color:new THREE.Color(t.lid),  roughness:0.34, metalness:0.08 });
+
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.155, 0.46, 4, 1), bodyMat);
+  body.rotation.y = Math.PI/4; body.position.y = 0.23;
+  body.castShadow = true;
+  g.add(body);
+
+  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.195, 0.212, 0.11, 4, 1), lidMat);
+  lid.rotation.y = Math.PI/4; lid.position.y = 0.515;
+  lid.castShadow = true;
+  g.add(lid);
+
+  const sticker = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.2, 0.1),
+    new THREE.MeshStandardMaterial({ color:0xF2F5F8, roughness:0.7 })
+  );
+  sticker.position.set(0, 0.3, 0.182);
+  g.add(sticker);
+
+  if (selected){
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.3, 0.38, 40),
+      new THREE.MeshBasicMaterial({ color:0xE0825A, side:THREE.DoubleSide, transparent:true, opacity:0.95 })
+    );
+    ring.rotation.x = -Math.PI/2; ring.position.y = 0.04;
+    g.add(ring);
+  } else {
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.26, 0.3, 32),
+      new THREE.MeshBasicMaterial({ color:new THREE.Color(t.light), side:THREE.DoubleSide, transparent:true, opacity:0.7 })
+    );
+    ring.rotation.x = -Math.PI/2; ring.position.y = 0.035;
+    g.add(ring);
+  }
+
+  // เสาสัญญาณ: ถังที่วางอยู่ในอาคารจะถูกกล่อง 3 มิติบัง — ยิงเสาสีทะลุขึ้นเหนือหลังคาเพื่อให้เห็นจุดเสมอ
+  const zn = zoneAt(b.x, b.y);
+  const roof = zn ? zn.z / 100 : 0;
+  const beamH = roof + 0.85;
+  const beam = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.022, 0.022, beamH, 8),
+    new THREE.MeshBasicMaterial({ color:new THREE.Color(t.light), transparent:true, opacity:0.5, depthWrite:false })
+  );
+  beam.position.y = beamH / 2;
+  g.add(beam);
+
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.085, 16, 12),
+    new THREE.MeshBasicMaterial({ color:new THREE.Color(selected ? '#E0825A' : t.light) })
+  );
+  head.position.y = beamH;
+  g.add(head);
+
+  const halo = new THREE.Mesh(
+    new THREE.RingGeometry(0.12, 0.17, 28),
+    new THREE.MeshBasicMaterial({ color:new THREE.Color(selected ? '#E0825A' : t.light), side:THREE.DoubleSide, transparent:true, opacity:0.75, depthWrite:false })
+  );
+  halo.position.y = beamH; halo.rotation.x = -Math.PI/2;
+  g.add(halo);
+
+  g.add(makeLabel(THREE, pointCode(b.no) + (b.qty > 1 ? ' ×' + b.qty : ''), 0, beamH + 0.3, 0, 0.30, 2.0));
+  g.position.set(b.x/100, 0.03, b.y/100);
+  g.userData.binId = b.id;
+  return g;
+}
+
+function sync3D(){
+  if (!ui.three) return;
+  const { THREE, binGroup } = ui.three;
+  while (binGroup.children.length){
+    const c = binGroup.children.pop();
+    c.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material){ if (o.material.map) o.material.map.dispose(); o.material.dispose(); } });
+  }
+  for (const b of state.bins) binGroup.add(makeBinMesh(THREE, b, ui.selectedId === b.id));
+}
+
+function resize3D(){
+  if (!ui.three) return;
+  const host = $('wrap3d');
+  const W = host.clientWidth, H = host.clientHeight;
+  if (!W || !H) return;
+  ui.three.camera.aspect = W / H;
+  ui.three.camera.updateProjectionMatrix();
+  ui.three.renderer.setSize(W, H);
+}
+function reset3DCamera(){
+  if (!ui.three) return;
+  ui.three.camera.position.set(0, 9.6, 13.2);
+  ui.three.controls.target.set(0, 0, 0);
+  ui.three.controls.update();
+}
+window.addEventListener('resize', () => { resize3D(); if ($('modal').classList.contains('show')) fitDocPreview(); });
+window.addEventListener('three-ready', () => { if (ui.view === '3d') { ensure3D(); resize3D(); } renderDebug(); });
+window.addEventListener('three-failed', () => { $('fallback3d').classList.add('show'); renderDebug(); });
+
+/* ═══════════ เอกสาร / PDF ═══════════ */
+function snapshot3D(){
+  if (!ui.three) return null;
+  try {
+    ui.three.renderer.render(ui.three.scene, ui.three.camera);
+    return ui.three.renderer.domElement.toDataURL('image/png');
+  } catch (e){ console.warn('[HAMER] snapshot 3D ไม่สำเร็จ', e); return null; }
+}
+
+/** SVG ที่พร้อมฝังในเอกสาร (ตัด interaction ออก และใช้กรอบเต็มผัง) */
+function docSvg(kind){
+  const src = kind === 'iso' ? $('svgIso') : $('svg2d');
+  const clone = src.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.removeAttribute('style');
+  if (kind === 'iso'){ const bb = isoBounds(); clone.setAttribute('viewBox', `${bb.x.toFixed(0)} ${bb.y.toFixed(0)} ${bb.w.toFixed(0)} ${bb.h.toFixed(0)}`); }
+  else clone.setAttribute('viewBox', '0 40 ' + WORLD.w + ' ' + (WORLD.h - 40));
+  clone.setAttribute('width', '100%');
+  clone.setAttribute('height', '100%');
+  clone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  return clone.outerHTML;
+}
+
+const LOGO_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#2A1508" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></svg>`;
+
+function pageHead(title, sub, pageNo, total){
+  const m = state.meta;
+  return `<div class="pg-rule"></div><div class="page-inner"><div class="pg-hd">
+    <div class="t"><h3>${esc(title)}</h3><p>${esc(sub)}</p></div>
+    <div class="meta">
+      เลขที่: <b>${esc(m.docNo || '-')}</b> · Rev. <b>${esc(m.rev || '00')}</b><br>
+      ${esc(SITE_NAME)} · <b>${esc(thaiDate())}</b>
+    </div></div>`;
+}
+function pageFoot(pageNo, total){
+  const m = state.meta;
+  return `<div class="pg-ft">
+    <span>${esc(APP_NAME)} — ${esc(SITE_NAME)}</span>
+    <span class="sp"></span>
+    <span>${m.preparedBy ? 'จัดทำโดย ' + esc(m.preparedBy) + (m.dept ? ' · ' + esc(m.dept) : '') : 'เอกสารประกอบการนำเสนอ'}</span>
+    <span class="sp"></span>
+    <span>หน้า ${pageNo} / ${total}</span>
+  </div></div>`;
+}
+
+function buildDoc(){
+  const s = summarize(state.bins);
+  const groups = groupByZone(state.bins);
+  const m = state.meta;
+
+  // แบ่งตารางเป็นหน้าละ 13 แถว (รวมหัวข้อโซน)
+  const rows = [];
+  for (const g of groups){
+    rows.push({ kind:'zone', zone:g.zone, count:g.items.length });
+    for (const b of g.items) rows.push({ kind:'bin', b });
+  }
+  const PER_PAGE = 13;
+  const chunks = [];
+  for (let i = 0; i < rows.length; i += PER_PAGE) chunks.push(rows.slice(i, i + PER_PAGE));
+  if (!chunks.length) chunks.push([]);
+
+  const snap = ui.view === '3d' ? snapshot3D() : null;
+  const total = 3 + chunks.length;
+  let p = 0;
+  let out = '';
+
+  /* ── หน้า 1: ปก ── */
+  p++;
+  out += `<section class="page cover"><div class="pg-rule"></div><div class="page-inner">
+    <div class="cover-mark">${LOGO_SVG}</div>
+    <h2>แผนผังจุดวางถังขยะแยกประเภท</h2>
+    <div class="en">WASTE SEGREGATION POINT LAYOUT · ${esc(SITE_NAME)}</div>
+    <div class="divider"></div>
+    <div class="cover-grid">
+      <dl class="cover-meta">
+        <dt>เลขที่เอกสาร</dt><dd>${esc(m.docNo || '—')}</dd>
+        <dt>ครั้งที่แก้ไข</dt><dd>Rev. ${esc(m.rev || '00')}</dd>
+        <dt>ผู้จัดทำ</dt><dd>${esc(m.preparedBy || '—')}</dd>
+        <dt>หน่วยงาน</dt><dd>${esc(m.dept || '—')}</dd>
+        <dt>วันที่จัดทำ</dt><dd>${esc(thaiDate())}</dd>
+        <dt>ที่มาของผัง</dt><dd>Lay-Out-จุดแยกขยะ.xlsx</dd>
+      </dl>
+      <div class="cover-kpis">
+        <div class="ck"><b>${s.points}</b><span>จุดวางถัง</span></div>
+        <div class="ck"><b>${s.totalBins}</b><span>ถังรวม (ใบ)</span></div>
+        <div class="ck"><b>${s.coverPct}%</b><span>ความครอบคลุมพื้นที่</span></div>
+      </div>
+    </div>
+    <div class="cover-legend">
+      ${BIN_TYPES.map(t => `<div class="cl"><img src="${BIN_IMG[t.id]}" alt=""><div>
+        <b style="color:${t.light}">${esc(t.label)}</b><span>${esc(t.desc)}</span>
+        <span style="color:${t.light};font-weight:600">${s.byType[t.id]} ใบ · ${s.pointsByType[t.id]} จุด</span>
+      </div></div>`).join('')}
+    </div>
+    ${m.note ? `<p style="margin-top:6mm;font-size:9pt;color:var(--cream-3);line-height:1.6">${esc(m.note)}</p>` : ''}
+    ${pageFoot(p, total)}`;
+  out += `</section>`;
+
+  /* ── หน้า 2: ผัง 2 มิติ ── */
+  p++;
+  out += `<section class="page">` + pageHead('ผังจุดวางถังขยะ — มุมมอง 2 มิติ', 'Site Plan · Top View', p, total) + `
+    <div class="map-frame">
+      <div class="mf-bd">${docSvg('2d')}</div>
+      <div class="map-legendbar">
+        ${BIN_TYPES.map(t => `<span class="mlb"><i style="background:${t.light}"></i>${esc(t.label)} — ${esc(t.desc)} <b style="color:${t.light};margin-left:1.5mm">${s.byType[t.id]} ใบ</b></span>`).join('')}
+        <span class="sp"></span><span class="mlb" style="color:var(--cream-3)">WP-xx = รหัสจุดวางถัง</span>
+      </div>
+    </div>` + pageFoot(p, total) + `</section>`;
+
+  /* ── หน้า 3: มุมมอง 3 มิติ / ไอโซเมตริก ── */
+  p++;
+  out += `<section class="page">` + pageHead(
+      snap ? 'ภาพจำลองพื้นที่ — มุมมอง 3 มิติ' : 'ภาพจำลองพื้นที่ — มุมมองไอโซเมตริก',
+      snap ? 'Perspective View · 3D Simulation' : 'Isometric View · 2.5D Simulation', p, total) + `
+    <div class="map-frame">
+      <div class="mf-bd">${snap ? `<img src="${snap}" alt="มุมมอง 3 มิติ">` : docSvg('iso')}</div>
+      <div class="map-legendbar">
+        ${BIN_TYPES.map(t => `<span class="mlb"><i style="background:${t.light}"></i>${esc(t.label)}</span>`).join('')}
+        <span class="sp"></span>
+        <span class="mlb" style="color:var(--cream-3)">ความสูงอาคารเป็นค่าจำลองเพื่อการนำเสนอ ไม่ใช่ค่าจริงจากแบบก่อสร้าง</span>
+      </div>
+    </div>` + pageFoot(p, total) + `</section>`;
+
+  /* ── หน้า 4+: ตารางรายการ ── */
+  chunks.forEach((chunk, ci) => {
+    p++;
+    const last = ci === chunks.length - 1;
+    out += `<section class="page">` + pageHead(
+      'ทะเบียนจุดวางถังขยะ' + (chunks.length > 1 ? ` (${ci+1}/${chunks.length})` : ''),
+      'Waste Point Register', p, total) + `
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:26mm">รหัสจุด</th>
+          <th>พื้นที่ / อาคาร</th>
+          <th style="width:44mm">ประเภทขยะ</th>
+          <th style="width:22mm" class="c">จำนวน</th>
+          <th style="width:70mm">หมายเหตุ</th>
+        </tr></thead>
+        <tbody>`;
+    if (!chunk.length){
+      out += `<tr><td colspan="5" style="padding:14mm 0;text-align:center;color:var(--cream-3)">ยังไม่มีการกำหนดจุดวางถังขยะในผังนี้</td></tr>`;
+    }
+    for (const r of chunk){
+      if (r.kind === 'zone'){
+        out += `<tr><td colspan="5" style="background:rgba(200,155,90,.10);font-weight:600;color:var(--gold);letter-spacing:.5px">
+          ${esc(r.zone)} <span style="font-weight:400;color:var(--cream-3)">— ${r.count} จุด</span></td></tr>`;
+      } else {
+        const t = TYPE_MAP[r.b.type];
+        out += `<tr>
+          <td style="font-weight:600">${pointCode(r.b.no)}</td>
+          <td>${esc(zoneLabel(r.b.x, r.b.y))}</td>
+          <td><span class="chip" style="border-color:${t.light};color:${t.light}"><i style="background:${t.light}"></i>${esc(t.label)}</span></td>
+          <td class="num">${r.b.qty}</td>
+          <td style="color:var(--cream-2)">${esc(r.b.note || '—')}</td>
+        </tr>`;
+      }
+    }
+    out += `</tbody></table>`;
+
+    if (last){
+      out += `<div class="sum-row">
+        ${BIN_TYPES.map(t => `<div class="sum-card"><img src="${BIN_IMG[t.id]}" alt="">
+          <div><b>${s.byType[t.id]}</b><span>${esc(t.label)} · ${s.pointsByType[t.id]} จุด</span></div></div>`).join('')}
+        <div class="sum-card" style="border-color:var(--copper)">
+          <div><b style="color:var(--copper)">${s.totalBins}</b><span>รวมทั้งหมด · ${s.points} จุด</span></div></div>
+      </div>
+      <div class="signrow">
+        <div class="sign"><div class="ln"></div><b>${esc(m.preparedBy || '(ผู้จัดทำ)')}</b>ผู้จัดทำ ${m.dept ? '· ' + esc(m.dept) : ''}</div>
+        <div class="sign"><div class="ln"></div><b>(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</b>ผู้ตรวจสอบ</div>
+        <div class="sign"><div class="ln"></div><b>(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</b>ผู้อนุมัติ</div>
+      </div>`;
+    }
+    out += pageFoot(p, total) + `</section>`;
+  });
+
+  return out;
+}
+
+/** ย่อพรีวิวให้เห็นเต็มหน้ากระดาษ (A4 แนวนอน = 297mm ≈ 1123px ที่ 96dpi)
+ *  ใช้ zoom เพื่อให้ layout หดตามจริง ไม่เหลือช่องว่างเหมือน transform:scale
+ *  การพิมพ์ไม่ได้รับผลกระทบ เพราะ #printRoot เป็นคนละก้อนกับพรีวิว */
+function fitDocPreview(){
+  const host = $('docHost');
+  if (!host.children.length) return;
+  const pageW = 297 * 96 / 25.4;
+  const z = Math.min(1, Math.max(0.25, (host.clientWidth - 6) / pageW));
+  host.querySelectorAll('.page').forEach(p => { p.style.zoom = z; });
+}
+
+function openModal(){
+  const html = buildDoc();
+  $('docHost').innerHTML = html;
+  $('printRoot').innerHTML = html;
+  $('modal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  fitDocPreview();
+  $('btnPrint').focus();
+}
+function closeModal(){
+  $('modal').classList.remove('show');
+  document.body.style.overflow = '';
+  $('btnExport').focus();
+}
+$('btnExport').addEventListener('click', openModal);
+$('btnCloseModal').addEventListener('click', closeModal);
+$('btnPrint').addEventListener('click', () => window.print());
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
+
+/* ===== 7. INIT + TEST SUITE ===== */
+function fillMetaInputs(){
+  $('mDoc').value = state.meta.docNo || '';
+  $('mBy').value = state.meta.preparedBy || '';
+  $('mDept').value = state.meta.dept || '';
+  $('mRev').value = state.meta.rev || '00';
+  $('mNote').value = state.meta.note || '';
+}
+
+function init(){
+  const qs = new URLSearchParams(location.search);
+  ui.debug = qs.get('debug') === '1';
+  if (ui.debug) $('debugPanel').classList.add('show');
+
+  load();
+  fillMetaInputs();
+  renderLegendOnce();
+  bindSvg($('svg2d'), '2d');
+  bindSvg($('svgIso'), 'iso');
+  syncModeButtons();
+  renderAll();
+
+  if (qs.get('test') === '1') runTests();
+}
+
+/* ---------- TEST SUITE (?test=1) ---------- */
+const tests = [];
+function test(name, fn){ tests.push({ name, fn }); }
+function assertEq(a, b, msg){
+  if (JSON.stringify(a) !== JSON.stringify(b))
+    throw new Error(msg || `${JSON.stringify(a)} != ${JSON.stringify(b)}`);
+}
+function assertTrue(v, msg){ if (!v) throw new Error(msg || 'expected true'); }
+
+test('clamp: ในช่วงปกติ', () => assertEq(clamp(50, 0, 100), 50));
+test('clamp: เกินขอบบน/ล่าง', () => { assertEq(clamp(-5, 0, 100), 0); assertEq(clamp(999, 0, 100), 100); });
+test('clamp: ค่าว่าง/NaN คืนขอบล่าง', () => { assertEq(clamp('', 0, 100), 0); assertEq(clamp(undefined, 0, 100), 0); });
+test('clampInt: ทศนิยมและค่าผิดรูป', () => { assertEq(clampInt('3.9', 1, 99, 1), 3); assertEq(clampInt('abc', 1, 99, 1), 1); assertEq(clampInt(0, 1, 99, 1), 1); });
+
+test('inRect: จุดในกรอบ', () => assertTrue(inRect(10, 10, { x:0, y:0, w:20, h:20 })));
+test('inRect: จุดนอกกรอบ + ขอบพอดี', () => {
+  assertTrue(!inRect(30, 10, { x:0, y:0, w:20, h:20 }));
+  assertTrue(inRect(20, 20, { x:0, y:0, w:20, h:20 }), 'ขอบนับว่าอยู่ใน');
+});
+
+test('zoneAt: กลาง WH ต้องได้ P1-WH', () => assertEq(zoneAt(300, 700).id, 'P1-WH'));
+test('zoneAt: ห้องย่อยชนะอาคารใหญ่ (R&D ซ้อนใน OFFICE)', () => assertEq(zoneAt(420, 390).id, 'P1-RND'));
+test('zoneAt: TOWN HALL ซ้อนใน OFFICE เฟส 2', () => assertEq(zoneAt(1600, 500).id, 'P2-HALL'));
+test('zoneAt: จุดบนถนนกลาง ไม่อยู่ในอาคารใด → null', () => assertEq(zoneAt(948, 600), null));
+test('zoneLabel: จุดนอกทุกโซนต้องมีข้อความเสมอ', () => assertEq(zoneLabel(948, 600), 'พื้นที่ส่วนกลาง / ถนน'));
+test('zoneAt: อาคารรอบนอก โรงอาหาร', () => assertEq(zoneAt(1400, 950).id, 'F-CANT'));
+
+test('fitLabel: กรอบใหญ่ ได้ฟอนต์เต็มขนาดและไม่หมุน', () => {
+  const r = fitLabel({ name:'WH', w:341, h:206 }, 22);
+  assertEq([r.rot, r.lines, r.fs], [false, ['WH'], 22]);
+});
+test('fitLabel: กรอบแคบสูง ต้องหมุนป้าย', () => {
+  assertEq(fitLabel({ name:'บ่อบำบัด', w:50, h:122 }, 22).rot, true);
+});
+test('fitLabel: ชื่อยาวในกรอบเล็ก ต้องย่อฟอนต์ลงไม่ให้ล้น', () => {
+  const r = fitLabel({ name:'ห้องควบคุมไฟฟ้า', w:122, h:122 }, 22);
+  assertTrue(r.fs * r.lines[0].length * 0.56 <= 122 - 12 + 0.5, 'ล้นกรอบ fs=' + r.fs);
+});
+test('fitLabel: ใช้ mapLines ตัดบรรทัดตามที่กำหนด ไม่ตัดคำไทยเอง', () => {
+  const z = ZONES.find(z => z.id === 'F-ELEC');
+  const r = fitLabel(z, 22);
+  assertEq(r.lines, ['ห้องควบคุม', 'ไฟฟ้า']);
+  assertTrue(r.fs * 1.22 * 2 <= z.h - 8 + 0.5, 'ล้นความสูง');
+});
+test('fitLabel: ทุกโซนบนผังต้องมีป้ายที่ไม่ล้นกรอบ (ตรวจครบทุกโซน)', () => {
+  const bad = ZONES.filter(z => z.kind === 'phase' ? false : (() => {
+    const r = fitLabel(z, 22);
+    const availW = (r.rot ? z.h : z.w) - 12, availH = (r.rot ? z.w : z.h) - 8;
+    const maxLen = Math.max(...r.lines.map(s => s.length));
+    return r.fs * maxLen * 0.56 > availW + 0.5 || r.fs * 1.22 * r.lines.length > availH + 0.5;
+  })());
+  assertEq(bad.map(z => z.id), []);
+});
+test('fitLabel: กรอบเล็กมาก ฟอนต์ไม่ต่ำกว่าขั้นต่ำ 9', () => {
+  assertTrue(fitLabel({ name:'ทดสอบชื่อยาวมากๆ', w:10, h:10 }, 22).fs >= 9);
+});
+
+test('makeBin: ค่าเริ่มต้นถูกต้อง', () => {
+  const b = makeBin('blue', 500, 500, 0);
+  assertEq([b.type, b.qty, b.no, b.note], ['blue', 1, 1, '']);
+});
+test('makeBin: ประเภทผิด → fallback green, พิกัดติดลบถูก clamp', () => {
+  const b = makeBin('purple', -50, 99999, 4);
+  assertEq([b.type, b.x, b.y, b.no], ['green', 0, WORLD.h, 5]);
+});
+
+test('pointCode: เติมศูนย์หน้า', () => { assertEq(pointCode(1), 'WP-01'); assertEq(pointCode(12), 'WP-12'); assertEq(pointCode(103), 'WP-103'); });
+
+test('summarize: ชุดว่าง', () => {
+  const s = summarize([]);
+  assertEq([s.points, s.totalBins, s.zonesCovered, s.coverPct], [0, 0, 0, 0]);
+});
+test('summarize: นับจำนวนถังตาม qty ไม่ใช่จำนวนจุด', () => {
+  const s = summarize([
+    { type:'green', x:300, y:700, qty:3, no:1 },
+    { type:'green', x:600, y:700, qty:2, no:2 },
+    { type:'blue',  x:300, y:700, qty:1, no:3 }
+  ]);
+  assertEq([s.points, s.totalBins, s.byType.green, s.byType.blue, s.pointsByType.green], [3, 6, 5, 1, 2]);
+});
+test('summarize: ถังคนละใบในโซนเดียวกัน นับพื้นที่ครั้งเดียว', () => {
+  const s = summarize([{ type:'green', x:300, y:700, qty:1, no:1 }, { type:'blue', x:310, y:710, qty:1, no:2 }]);
+  assertEq(s.zonesCovered, 1);
+});
+test('summarize: ประเภทแปลกปลอมถูกข้าม ไม่ทำให้พัง', () => {
+  const s = summarize([{ type:'pink', x:300, y:700, qty:5, no:1 }]);
+  assertEq(s.totalBins, 0);
+});
+
+test('groupByZone: จัดกลุ่มและเรียงตามลำดับจุด', () => {
+  const g = groupByZone([
+    { type:'blue', x:300, y:700, qty:1, no:2 },
+    { type:'green',x:300, y:700, qty:1, no:1 },
+    { type:'green',x:1400,y:950, qty:1, no:3 }
+  ]);
+  assertEq(g.length, 2);
+  assertEq(g[0].zone, 'WH');
+  assertEq(g[0].items.map(b => b.no), [1, 2]);
+});
+
+test('isoPt: จุดกำเนิดคงที่', () => assertEq(isoPt(0, 0, 0), { X:0, Y:0 }));
+test('isoBounds: ครอบทุกโซนจริง ไม่มีอะไรหลุดกรอบ', () => {
+  const bb = isoBounds(0);
+  const out = [];
+  for (const z of ZONES){
+    for (const zz of [0, z.z]){
+      for (const [x,y] of [[z.x,z.y],[z.x+z.w,z.y],[z.x,z.y+z.h],[z.x+z.w,z.y+z.h]]){
+        const p = isoPt(x, y, zz);
+        if (p.X < bb.x - 0.01 || p.X > bb.x + bb.w + 0.01 || p.Y < bb.y - 0.01 || p.Y > bb.y + bb.h + 0.01) out.push(z.id);
+      }
+    }
+  }
+  assertEq([...new Set(out)], []);
+});
+test('isoBounds: pad ขยายกรอบทั้ง 4 ด้านเท่ากัน', () => {
+  const a = isoBounds(0), b = isoBounds(50);
+  assertEq([b.x, b.y, b.w, b.h], [a.x - 50, a.y - 50, a.w + 100, a.h + 100]);
+});
+test('isoInverse: ผกผันของ isoPt ที่ z=0 (คลาดเคลื่อน < 0.001)', () => {
+  const p = isoPt(732, 415, 0);
+  const inv = isoInverse(p.X, p.Y);
+  assertTrue(Math.abs(inv.x - 732) < 0.001 && Math.abs(inv.y - 415) < 0.001, 'inv=' + JSON.stringify(inv));
+});
+test('isoInverse: จุด (0,0) กลับมาเป็น (0,0)', () => {
+  const inv = isoInverse(0, 0);
+  assertTrue(Math.abs(inv.x) < 1e-9 && Math.abs(inv.y) < 1e-9);
+});
+
+test('migrate: ข้อมูลว่าง/พัง ไม่ทำให้ระเบิด', () => {
+  assertEq(migrate(null), null);
+  const d = migrate({});
+  assertEq([d.version, d.bins.length, d.meta.rev], [SCHEMA_VERSION, 0, '00']);
+});
+test('migrate: ข้อมูลรุ่นไม่มี version → เติม field ครบและไม่ลบถังเดิม', () => {
+  const d = migrate({ bins:[{ x:100, y:100, type:'blue' }] });
+  assertEq([d.version, d.bins.length, d.bins[0].qty, d.bins[0].note], [SCHEMA_VERSION, 1, 1, '']);
+});
+test('migrate: ถังที่ไม่มีพิกัด ถูกคัดออก ไม่พังทั้งชุด', () => {
+  const d = migrate({ version:1, bins:[{ x:10, y:10, type:'green' }, { type:'blue' }, null] });
+  assertEq(d.bins.length, 1);
+});
+test('migrate: seq ต้องไม่ต่ำกว่าเลขจุดสูงสุด (กันรหัสซ้ำ)', () => {
+  const d = migrate({ version:1, seq:0, bins:[{ x:10, y:10, type:'green', no:7 }] });
+  assertEq(d.seq, 7);
+});
+
+test('thaiDate: แสดงเป็น พ.ศ. (ปี ค.ศ. + 543)', () => {
+  const out = thaiDate('2026-01-15');
+  assertTrue(out.indexOf('2569') >= 0, 'ได้ ' + out);
+});
+test('thaiDate: วันที่ผิดรูปแบบ คืน "-"', () => assertEq(thaiDate('ไม่ใช่วันที่'), '-'));
+
+test('esc: กัน HTML injection', () => assertEq(esc('<script>&"'), '&lt;script&gt;&amp;&quot;'));
+test('esc: null/undefined คืนสตริงว่าง', () => { assertEq(esc(null), ''); assertEq(esc(undefined), ''); });
+
+test('shade: คำนวณเฉดเข้มขึ้นได้', () => assertEq(shade('#808080', 0.5), '#404040'));
+test('ZONES: ไม่มี id ซ้ำ', () => assertEq(new Set(ZONES.map(z => z.id)).size, ZONES.length));
+test('ZONES: ทุกโซนอยู่ในขอบเขต WORLD', () => {
+  const bad = ZONES.filter(z => z.x < 0 || z.y < 0 || z.x + z.w > WORLD.w || z.y + z.h > WORLD.h);
+  assertEq(bad.map(z => z.id), []);
+});
+test('BIN_TYPES: ครบ 3 ประเภทและมีรูปครบ', () => {
+  assertEq(BIN_TYPES.length, 3);
+  assertTrue(BIN_TYPES.every(t => BIN_IMG[t.id] && BIN_IMG[t.id].startsWith('data:image/png;base64,')));
+});
+
+function runTests(){
+  let pass = 0; const fails = [];
+  for (const t of tests){
+    try { t.fn(); pass++; }
+    catch (e){ fails.push(t.name + ' → ' + e.message); }
+  }
+  const ok = fails.length === 0;
+  const box = document.createElement('div');
+  box.style.cssText = `position:fixed;inset:auto 12px 12px auto;z-index:999;max-width:460px;max-height:70vh;overflow:auto;
+    padding:14px 16px;border-radius:12px;font:13px/1.6 ui-monospace,Consolas,monospace;
+    background:#08121F;border:2px solid ${ok ? '#3FBF7F' : '#E0604A'};color:#E6E8EB;box-shadow:0 12px 40px rgba(0,0,0,.6)`;
+  box.innerHTML = `<b style="color:${ok ? '#3FBF7F' : '#E0604A'};font-size:15px">TEST ${pass}/${tests.length} ผ่าน</b>`
+    + (ok ? '<div style="color:#3FBF7F;margin-top:6px">ทุกเคสผ่านหมด</div>'
+          : '<ul style="margin:8px 0 0;padding-left:18px;color:#FFB4A4">' + fails.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>');
+  document.body.appendChild(box);
+  console.log(`[HAMER] TEST ${pass}/${tests.length}`, fails);
+}
+
+init();
+</script>
+
+<!-- three.js โหลดแบบ module + importmap (ไม่มี build step) — ถ้าโหลดไม่ได้จะแจ้ง fallback -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+try {
+  const THREE = await import('three');
+  const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+  window.__three = { THREE, OrbitControls };
+  window.dispatchEvent(new Event('three-ready'));
+} catch (e) {
+  window.__threeError = e;
+  console.warn('[HAMER] โหลด three.js ไม่สำเร็จ — ใช้มุมมองไอโซเมตริกแทนได้', e);
+  window.dispatchEvent(new Event('three-failed'));
+}
+</script>
+</body>
+</html>
