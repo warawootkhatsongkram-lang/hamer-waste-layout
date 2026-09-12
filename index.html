@@ -2230,6 +2230,25 @@ function docSvg(kind){
   clone.setAttribute('width', '100%');
   clone.setAttribute('height', '100%');
   clone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  /* ── ทำให้ SVG ในเอกสารเป็นอิสระจาก SVG บนหน้าจอ ──
+   * ปัญหาที่เจอ: กรอบสี่เหลี่ยมของอาคารหายไปในหน้าเอกสาร/PDF บนบางเครื่อง
+   * สาเหตุ: clone มาแล้ว id ใน <defs> ซ้ำกับ SVG บนหน้าจอ → url(#..) ชี้ผิดตัว
+   *        และตามสเปค SVG ถ้าอ้าง filter ไม่สำเร็จ เบราว์เซอร์จะไม่วาดชิ้นนั้น "ทั้งชิ้น"
+   * วิธีแก้ 2 ชั้น: (1) เติม prefix ให้ id ทุกตัวในสำเนา + ไล่แก้ url(#..) ตาม
+   *                (2) ถอด filter (เงา) ออกจากสำเนา — เงาไม่จำเป็นในเอกสารพิมพ์
+   *                    และเป็นส่วนที่ตัวพิมพ์ PDF ตัดทิ้งบ่อยที่สุด */
+  const pfx = 'doc' + kind + '-';
+  const idMap = {};
+  clone.querySelectorAll('[id]').forEach(el => { idMap[el.id] = pfx + el.id; el.id = pfx + el.id; });
+  clone.querySelectorAll('*').forEach(el => {
+    for (const a of [...el.attributes]){
+      const m = /^url\(#([^)]+)\)$/.exec((a.value || '').trim());
+      if (m && idMap[m[1]]) el.setAttribute(a.name, 'url(#' + idMap[m[1]] + ')');
+    }
+  });
+  clone.querySelectorAll('[filter]').forEach(el => el.removeAttribute('filter'));
+
   return clone.outerHTML;
 }
 
@@ -2402,7 +2421,9 @@ function fitDocPreview(){
 function openModal(){
   const html = buildDoc();
   $('docHost').innerHTML = html;
-  $('printRoot').innerHTML = html;
+  // ก้อนสำหรับพิมพ์ต้องมี id ชุดของตัวเอง — ตอนพิมพ์ CSS ซ่อน body>* ทั้งหมด
+  // ถ้า id ซ้ำกับพรีวิว url(#..) จะไปชี้ defs ที่ถูกซ่อน แล้วกรอบอาคารจะหายในไฟล์ PDF
+  $('printRoot').innerHTML = html.replace(/doc(2d|iso)-/g, 'prndoc$1-');
   $('modal').classList.add('show');
   document.body.style.overflow = 'hidden';
   fitDocPreview();
@@ -2646,6 +2667,44 @@ test('ZONES: ทุกโซนอยู่ในขอบเขต WORLD', () =
 test('BIN_TYPES: ครบ 3 ประเภทและมีรูปครบ', () => {
   assertEq(BIN_TYPES.length, 3);
   assertTrue(BIN_TYPES.every(t => BIN_IMG[t.id] && BIN_IMG[t.id].startsWith('data:image/png;base64,')));
+});
+
+/* ── ดักบั๊ก "กรอบอาคารหายในไฟล์ PDF" ไม่ให้กลับมาอีก ──
+ * SVG ที่ clone ไปทำเอกสารต้องเลี้ยงตัวเองได้ 100%: id ไม่ซ้ำของบนหน้าจอ และไม่มี filter
+ * (ตอนพิมพ์ CSS ซ่อน body>* ทั้งหมด ถ้าอ้าง defs ข้ามก้อน = ชิ้นนั้นหายทั้งชิ้น) */
+function docSvgProbe(kind){
+  const d = document.createElement('div');
+  d.innerHTML = docSvg(kind);
+  return d.firstElementChild;
+}
+for (const kind of ['2d', 'iso']){
+  test(`docSvg('${kind}'): ไม่เหลือ filter ให้อ้างข้ามก้อน`, () => {
+    assertEq(docSvgProbe(kind).querySelectorAll('[filter]').length, 0);
+  });
+  test(`docSvg('${kind}'): id ทุกตัวเติม prefix แล้ว`, () => {
+    const pfx = 'doc' + kind + '-';
+    const bad = [...docSvgProbe(kind).querySelectorAll('[id]')].map(e => e.id).filter(id => !id.startsWith(pfx));
+    assertEq(bad, []);
+  });
+  test(`docSvg('${kind}'): url(#..) ทุกตัวชี้ defs ในสำเนาตัวเอง`, () => {
+    const svg = docSvgProbe(kind);
+    const miss = [];
+    svg.querySelectorAll('*').forEach(el => {
+      for (const a of el.attributes){
+        const m = /^url\(#([^)]+)\)$/.exec((a.value || '').trim());
+        if (m && !svg.querySelector('#' + m[1])) miss.push(m[1]);
+      }
+    });
+    assertEq(miss, []);
+  });
+}
+test('docSvg: สำเนา 2d กับ iso ไม่ใช้ id ชนกัน', () => {
+  const a = [...docSvgProbe('2d').querySelectorAll('[id]')].map(e => e.id);
+  const b = [...docSvgProbe('iso').querySelectorAll('[id]')].map(e => e.id);
+  assertEq(a.filter(id => b.includes(id)), []);
+});
+test('docSvg: ผัง 2 มิติในเอกสารมีกรอบอาคารครบทุกโซน', () => {
+  assertEq(docSvgProbe('2d').querySelectorAll('[id$="-zones"] > rect').length >= ZONES.length, true);
 });
 
 function runTests(){
