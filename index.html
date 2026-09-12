@@ -453,6 +453,19 @@ button{cursor:pointer; border:0; background:none}
 .sync-status.s-busy i{background:var(--warn);animation:pulse 1.2s ease-in-out infinite}
 .sync-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
 .sync-actions .btn{flex:1 1 92px}
+.sync-auto{
+  display:flex;align-items:flex-start;gap:9px;cursor:pointer;
+  margin-top:11px;padding:9px 11px;border-radius:9px;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.24);
+  transition:border-color var(--t-fast),background var(--t-fast);
+}
+.sync-auto:hover{background:rgba(255,255,255,.05)}
+.sync-auto input{width:17px;height:17px;flex:0 0 17px;margin:1px 0 0;accent-color:var(--copper);cursor:pointer}
+.sync-auto span{min-width:0}
+.sync-auto b{display:block;font-size:12.5px;font-weight:500;color:var(--cream)}
+.sync-auto em{display:block;font-style:normal;font-size:11px;color:var(--cream-3);line-height:1.45;margin-top:2px}
+.sync-auto.is-on{border-color:rgba(63,191,127,.42)}
+.sync-auto.is-on b{color:#BFF0D6}
 .sync-hint{margin:11px 0 0;font-size:11.5px;color:var(--cream-3);line-height:1.55}
 .sync-hint code{background:rgba(0,0,0,.4);padding:1px 5px;border-radius:4px;font-size:11px;color:var(--gold)}
 
@@ -638,6 +651,10 @@ button{cursor:pointer; border:0; background:none}
             <button class="btn btn--sm btn--ghost" id="btnSyncPull">ดึงลงเครื่อง</button>
             <button class="btn btn--sm btn--primary" id="btnSyncPush">ส่งขึ้นส่วนกลาง</button>
           </div>
+          <label class="sync-auto" id="syncAutoRow" for="sAuto">
+            <input type="checkbox" id="sAuto" checked>
+            <span><b>บันทึกอัตโนมัติทุก 10 วินาที</b><em id="sAutoInfo">ส่งขึ้นเฉพาะตอนข้อมูลเปลี่ยน</em></span>
+          </label>
           <p class="sync-hint">
             วางลิงก์ที่ได้จากการ Deploy <code>gas-backend.gs</code> (ลงท้ายด้วย <code>/exec</code>)<br>
             ค่าที่กรอกเก็บไว้ใน<b>เครื่องนี้เครื่องเดียว</b> ไม่ได้ฝังอยู่ในหน้าเว็บ — เครื่องอื่นต้องกรอกเอง
@@ -765,6 +782,10 @@ const LS_KEY = 'hamer_waste_layout_v1';
    และไม่ถูก export ไปกับไฟล์ JSON สำรอง (รหัสจะได้ไม่หลุดไปกับไฟล์ที่ส่งต่อ) */
 const LS_SYNC = 'hamer_waste_sync_v1';
 const SYNC_TIMEOUT_MS = 15000;
+/* บันทึกอัตโนมัติ: ตรวจทุก 10 วินาที แต่ "ส่งเฉพาะตอนข้อมูลเปลี่ยนจริง"
+   ถ้ายิงทุก 10 วิแบบไม่มีเงื่อนไข = 8,640 ครั้ง/วัน/เครื่อง จะชนโควตา Apps Script */
+const AUTO_SAVE_MS = 10000;
+const AUTO_FAIL_LIMIT = 3;          // พลาดติดกันกี่ครั้งแล้วหยุดอัตโนมัติ (กันยิงรัวตอนเน็ตล่ม)
 
 /* รูปถังขยะจริง 3 ใบ — ดึงออกจาก Lay-Out-จุดแยกขยะ.xlsx แล้วลบพื้นหลังขาว */
 const BIN_IMG = {
@@ -864,7 +885,12 @@ const ui = {
     dataRev: null,          // รุ่นข้อมูลล่าสุดที่เครื่องนี้รู้จัก — ใช้กันเขียนทับงานคนอื่น
     busy: false,
     status: 'idle',         // 'idle' | 'busy' | 'ok' | 'err'
-    msg: ''
+    msg: '',
+    auto: true,             // บันทึกอัตโนมัติ (ทำงานเมื่อมีทั้งลิงก์และรหัสเท่านั้น)
+    lastSnapshot: null,     // ภาพข้อมูลที่ส่งขึ้นสำเร็จล่าสุด — ใช้เทียบว่ามีอะไรเปลี่ยนไหม
+    lastAutoAt: '',         // เวลาที่บันทึกอัตโนมัติสำเร็จล่าสุด
+    failCount: 0,           // จำนวนครั้งที่บันทึกอัตโนมัติพลาดติดกัน
+    remoteCount: null       // จำนวนจุดบนส่วนกลางเท่าที่รู้ล่าสุด — ใช้กันการล้างข้อมูลส่วนกลางโดยไม่ตั้งใจ
   }
 };
 
@@ -921,6 +947,7 @@ function loadSyncCfg(){
     ui.sync.key = typeof o.key === 'string' ? o.key : '';
     ui.sync.who = typeof o.who === 'string' ? o.who : '';
     ui.sync.dataRev = typeof o.dataRev === 'number' ? o.dataRev : null;
+    ui.sync.auto = (o.auto === undefined) ? true : !!o.auto;
   } catch (e) {
     console.error('[HAMER] อ่านการตั้งค่าเชื่อมต่อไม่สำเร็จ — คงค่าเดิมไว้ ไม่เขียนทับ', e);
   }
@@ -929,7 +956,7 @@ function loadSyncCfg(){
 function saveSyncCfg(){
   try {
     localStorage.setItem(LS_SYNC, JSON.stringify({
-      url: ui.sync.url, key: ui.sync.key, who: ui.sync.who, dataRev: ui.sync.dataRev
+      url: ui.sync.url, key: ui.sync.key, who: ui.sync.who, dataRev: ui.sync.dataRev, auto: ui.sync.auto
     }));
   } catch (e) { console.error('[HAMER] บันทึกการตั้งค่าเชื่อมต่อไม่สำเร็จ', e); }
 }
@@ -1110,6 +1137,20 @@ function stateFromRemote(payload){
     bins: (payload && payload.bins) || [],
     seq: 0,
     meta: (payload && payload.meta) || {}
+  });
+}
+
+/** ภาพถ่ายข้อมูลไว้เทียบว่ามีการเปลี่ยนแปลงหรือยัง (pure)
+ *  ใช้กับการบันทึกอัตโนมัติ — ถ้าเหมือนเดิมจะไม่ยิงเน็ตเลย ประหยัดโควตา Apps Script
+ *  binsToWire เรียงตามลำดับจุดให้แล้ว การสลับตำแหน่งใน array จึงไม่ทำให้ผลต่าง */
+function syncSnapshot(bins, meta){
+  const m = meta || {};
+  return JSON.stringify({
+    b: binsToWire(bins),
+    m: {
+      docNo: m.docNo || '', preparedBy: m.preparedBy || '', dept: m.dept || '',
+      rev: m.rev || '', note: m.note || ''
+    }
   });
 }
 
@@ -1522,6 +1563,15 @@ function renderSync(){
   else if (s.status === 'busy') box.classList.add('s-busy');
   $('syncMsg').textContent = s.msg || 'ยังไม่ได้เชื่อมต่อ — ใช้งานออฟไลน์อยู่';
   ['btnSyncTest', 'btnSyncPull', 'btnSyncPush'].forEach(id => { $(id).disabled = s.busy; });
+
+  $('sAuto').checked = s.auto;
+  $('syncAutoRow').classList.toggle('is-on', s.auto && !!s.key && normalizeGasUrl(s.url).ok);
+  let info;
+  if (!s.auto) info = 'ปิดอยู่ — ต้องกด "ส่งขึ้นส่วนกลาง" เอง';
+  else if (!normalizeGasUrl(s.url).ok) info = 'รอใส่ลิงก์ก่อนถึงจะเริ่มทำงาน';
+  else if (!s.key) info = 'รอใส่รหัสก่อนถึงจะบันทึกได้';
+  else info = 'กำลังทำงาน · ส่งขึ้นเฉพาะตอนข้อมูลเปลี่ยน' + (s.lastAutoAt ? ' · ล่าสุด ' + s.lastAutoAt : '');
+  $('sAutoInfo').textContent = info;
 }
 
 function setSync(status, msg){
@@ -1548,6 +1598,9 @@ function renderDebug(){
     zoneAt(sel)=<b>${sel ? zoneLabel(sel.x, sel.y) : '-'}</b><br>
     lsBytes=<b>${(localStorage.getItem(LS_KEY) || '').length}</b> loadErr=<b>${ui.loadError || 'none'}</b><br>
     sync=<b>${ui.sync.status}</b> urlOk=<b>${normalizeGasUrl(ui.sync.url).ok}</b> key=<b>${ui.sync.key ? 'set(' + ui.sync.key.length + ')' : '-'}</b> rev=<b>${ui.sync.dataRev === null ? '-' : ui.sync.dataRev}</b><br>
+    auto=<b>${ui.sync.auto ? 'ON' : 'OFF'}</b> timer=<b>${autoTimer ? 'running' : 'stopped'}</b> fail=<b>${ui.sync.failCount}</b> remote=<b>${ui.sync.remoteCount === null ? '-' : ui.sync.remoteCount}</b><br>
+    autoเหตุผลรอบล่าสุด=<b>${esc(ui.sync.lastDecision || '-')}</b><br>
+    snapshotตรงกัน=<b>${ui.sync.lastSnapshot !== null && syncSnapshot(state.bins, state.meta) === ui.sync.lastSnapshot}</b><br>
     syncMsg=<b>${esc(ui.sync.msg).slice(0, 90)}</b>`;
 }
 
@@ -1770,9 +1823,19 @@ $('iNote').addEventListener('input', e => {
 });
 
 /* --- 6.8 เชื่อมต่อส่วนกลาง --- */
-$('sUrl').addEventListener('input', e => { ui.sync.url = e.target.value.trim(); ui.sync.dataRev = null; saveSyncCfg(); });
-$('sKey').addEventListener('input', e => { ui.sync.key = e.target.value.trim(); saveSyncCfg(); });
+$('sUrl').addEventListener('input', e => {
+  ui.sync.url = e.target.value.trim();
+  ui.sync.dataRev = null; ui.sync.remoteCount = null; ui.sync.lastSnapshot = null;
+  saveSyncCfg();
+  if (ui.sync.auto && normalizeGasUrl(ui.sync.url).ok) startAutoTimer(); else stopAutoTimer();
+  renderSync();
+});
+$('sKey').addEventListener('input', e => { ui.sync.key = e.target.value.trim(); saveSyncCfg(); renderSync(); });
 $('sWho').addEventListener('input', e => { ui.sync.who = e.target.value.slice(0, 60); saveSyncCfg(); });
+$('sAuto').addEventListener('change', e => {
+  setAuto(e.target.checked);
+  if (ui.sync.auto && !normalizeGasUrl(ui.sync.url).ok) stopAutoTimer();
+});
 $('btnSyncTest').addEventListener('click', () => syncTest());
 $('btnSyncPull').addEventListener('click', () => syncPull());
 $('btnSyncPush').addEventListener('click', () => syncPush(false));
@@ -2165,6 +2228,7 @@ async function syncTest(){
     const info = await gasFetch({ action: 'load' });
     if (info && info.ok === true){
       ui.sync.dataRev = info.dataRev;
+      ui.sync.remoteCount = (info.bins || []).length;
       saveSyncCfg();
       setSync('ok', 'เชื่อมต่อได้ · ส่วนกลางมี ' + (info.bins || []).length + ' จุด (รุ่นที่ ' + info.dataRev +
         (info.updatedBy ? ' · แก้ล่าสุดโดย ' + info.updatedBy : '') + ')');
@@ -2196,6 +2260,10 @@ async function syncPull(){
     pushHistory();
     state = ns;
     ui.sync.dataRev = r.dataRev;
+    ui.sync.remoteCount = state.bins.length;
+    // จำภาพที่เพิ่งดึงมา เพื่อไม่ให้ตัวบันทึกอัตโนมัติส่งของเดิมกลับขึ้นไปทันที
+    ui.sync.lastSnapshot = syncSnapshot(state.bins, state.meta);
+    ui.sync.failCount = 0;
     ui.selectedId = null;
     save(); saveSyncCfg(); fillMetaInputs(); renderAll();
     setSync('ok', 'ดึงข้อมูลแล้ว ' + state.bins.length + ' จุด · รุ่นที่ ' + r.dataRev +
@@ -2205,13 +2273,18 @@ async function syncPull(){
   }
 }
 
-/** ส่งข้อมูลในเครื่องขึ้นส่วนกลาง — ถ้ามีคนบันทึกไปก่อน จะถามก่อนทับ (ไม่ทับเงียบๆ) */
-async function syncPush(force){
+/** ส่งข้อมูลในเครื่องขึ้นส่วนกลาง — ถ้ามีคนบันทึกไปก่อน จะถามก่อนทับ (ไม่ทับเงียบๆ)
+ *  auto = true คือถูกเรียกจากตัวจับเวลา: ห้ามเด้ง confirm และห้ามทับงานคนอื่นเอง */
+async function syncPush(force, auto){
   if (!ui.sync.key){
-    setSync('err', 'ต้องใส่ "รหัสสำหรับบันทึก" ก่อนถึงจะส่งขึ้นส่วนกลางได้');
+    if (!auto) setSync('err', 'ต้องใส่ "รหัสสำหรับบันทึก" ก่อนถึงจะส่งขึ้นส่วนกลางได้');
     return;
   }
-  setSync('busy', force ? 'กำลังบันทึกทับ…' : 'กำลังส่งขึ้นส่วนกลาง…');
+  // ถ่ายภาพข้อมูล ณ ตอนเริ่มส่ง — ถ้าระหว่างรอเน็ตมีการแก้เพิ่ม รอบหน้าจะส่งใหม่เอง
+  const snap = syncSnapshot(state.bins, state.meta);
+  const wire = binsToWire(state.bins);
+
+  setSync('busy', auto ? 'กำลังบันทึกอัตโนมัติ…' : (force ? 'กำลังบันทึกทับ…' : 'กำลังส่งขึ้นส่วนกลาง…'));
   try {
     const r = await gasFetch({ body: {
       action: 'save',
@@ -2219,11 +2292,22 @@ async function syncPush(force){
       dataRev: (typeof ui.sync.dataRev === 'number' ? ui.sync.dataRev : 0),
       force: !!force,
       by: ui.sync.who || '',
-      bins: binsToWire(state.bins),
+      bins: wire,
       meta: state.meta
     }});
 
     if (r && r.error === 'STALE'){
+      ui.sync.dataRev = r.serverRev;
+      ui.sync.remoteCount = (r.serverBins || []).length;
+      saveSyncCfg();
+      if (auto){
+        // โหมดอัตโนมัติ: ไม่ทับงานคนอื่นเด็ดขาด หยุดไว้ก่อนแล้วให้คนตัดสินใจ
+        setAuto(false);
+        setSync('err', 'หยุดบันทึกอัตโนมัติ — มีคนอื่นบันทึกไปแล้ว (รุ่นที่ ' + r.serverRev +
+          (r.updatedBy ? ' โดย ' + r.updatedBy : '') + ' · ' + ui.sync.remoteCount + ' จุด) ' +
+          'กด "ดึงลงเครื่อง" เพื่อเอาของเขามาก่อน แล้วค่อยเปิดอัตโนมัติใหม่');
+        return;
+      }
       const yes = confirm(
         'มีคนอื่นบันทึกข้อมูลไปแล้ว\n' +
         'ส่วนกลางตอนนี้: รุ่นที่ ' + r.serverRev + (r.updatedBy ? ' โดย ' + r.updatedBy : '') +
@@ -2232,29 +2316,97 @@ async function syncPush(force){
         'กด OK = บันทึกทับด้วยข้อมูลของเรา (ของเขาจะถูกแทนที่ แต่ยังกู้คืนได้จากชีต _history)\n' +
         'กด Cancel = ยกเลิก แล้วกด "ดึงลงเครื่อง" เพื่อดูของเขาก่อน');
       if (yes) return syncPush(true);
-      ui.sync.dataRev = r.serverRev;
-      saveSyncCfg();
       setSync('err', 'ยกเลิก — ส่วนกลางเป็นรุ่นที่ ' + r.serverRev + ' แล้ว กด "ดึงลงเครื่อง" ก่อนค่อยส่งใหม่');
       return;
     }
 
     if (!r || r.ok !== true) throw new Error(gasErrText(r));
     ui.sync.dataRev = r.dataRev;
+    ui.sync.remoteCount = r.saved;
+    ui.sync.lastSnapshot = snap;
+    ui.sync.failCount = 0;
     saveSyncCfg();
-    setSync('ok', 'ส่งขึ้นส่วนกลางแล้ว ' + r.saved + ' จุด · รุ่นที่ ' + r.dataRev + ' · ' + nowHm());
+    if (auto){
+      ui.sync.lastAutoAt = nowHm();
+      setSync('ok', 'บันทึกอัตโนมัติแล้ว ' + r.saved + ' จุด · รุ่นที่ ' + r.dataRev + ' · ' + ui.sync.lastAutoAt);
+    } else {
+      setSync('ok', 'ส่งขึ้นส่วนกลางแล้ว ' + r.saved + ' จุด · รุ่นที่ ' + r.dataRev + ' · ' + nowHm());
+    }
   } catch (e) {
+    if (auto){
+      ui.sync.failCount += 1;
+      if (ui.sync.failCount >= AUTO_FAIL_LIMIT){
+        setAuto(false);
+        setSync('err', 'หยุดบันทึกอัตโนมัติหลังพลาดติดกัน ' + AUTO_FAIL_LIMIT + ' ครั้ง (' + e.message + ') — ข้อมูลในเครื่องยังอยู่ครบ แก้แล้วเปิดใหม่ได้');
+      } else {
+        setSync('err', 'บันทึกอัตโนมัติไม่สำเร็จ (' + e.message + ') · จะลองใหม่ใน ' + (AUTO_SAVE_MS / 1000) + ' วินาที');
+      }
+      return;
+    }
     setSync('err', 'ส่งไม่สำเร็จ: ' + e.message);
   }
 }
 
+/* ── บันทึกอัตโนมัติ ───────────────────────────────────────────────
+   ตรวจทุก AUTO_SAVE_MS แต่ยิงขึ้นเซิร์ฟเวอร์เฉพาะตอนข้อมูลต่างจากที่ส่งไปล่าสุด */
+let autoTimer = null;
+
+function startAutoTimer(){
+  stopAutoTimer();
+  autoTimer = setInterval(autoSaveTick, AUTO_SAVE_MS);
+}
+function stopAutoTimer(){
+  if (autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+}
+
+/** เปิด/ปิดบันทึกอัตโนมัติ (จุดเดียวที่แตะ ui.sync.auto) */
+function setAuto(on){
+  ui.sync.auto = !!on;
+  ui.sync.failCount = 0;
+  saveSyncCfg();
+  if (ui.sync.auto) startAutoTimer(); else stopAutoTimer();
+  renderSync();
+  renderDebug();
+}
+
+/** เงื่อนไขที่ยอมให้บันทึกอัตโนมัติได้ (pure — เทสได้โดยไม่ต้องมีเน็ต)
+ *  คืน { go, why } — why บอกเหตุผลที่ข้าม เอาไว้โชว์ใน debug panel */
+function autoSaveDecision(s, bins, meta){
+  if (!s.auto)                              return { go:false, why:'ปิดอยู่' };
+  if (s.busy)                               return { go:false, why:'กำลังทำงานอื่นอยู่' };
+  if (!normalizeGasUrl(s.url).ok)           return { go:false, why:'ลิงก์ยังไม่ถูกต้อง' };
+  if (!s.key)                               return { go:false, why:'ยังไม่ใส่รหัส' };
+  // กันล้างข้อมูลส่วนกลางโดยไม่ตั้งใจ: เครื่องนี้ว่างเปล่า แต่ส่วนกลางมีของอยู่ → ไม่ยิง
+  if (!bins.length && (s.remoteCount || 0) > 0) return { go:false, why:'เครื่องนี้ยังว่าง แต่ส่วนกลางมีข้อมูล — ต้องกดส่งเองถ้าตั้งใจล้าง' };
+  if (syncSnapshot(bins, meta) === s.lastSnapshot) return { go:false, why:'ข้อมูลไม่เปลี่ยน' };
+  return { go:true, why:'มีการเปลี่ยนแปลง' };
+}
+
+async function autoSaveTick(){
+  const d = autoSaveDecision(ui.sync, state.bins, state.meta);
+  ui.sync.lastDecision = d.why;
+  renderDebug();
+  if (!d.go) return;
+  await syncPush(false, true);
+}
+
+/* เบราว์เซอร์หรี่ setInterval ของแท็บที่ไม่ได้อยู่หน้าจอ (บางทีเหลือ 1 ครั้ง/นาที)
+   พอกลับมาที่แท็บจึงตรวจทันที 1 รอบ ไม่ต้องรอครบ 10 วินาที */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && ui.sync.auto) autoSaveTick();
+});
+
 /** ตอนเปิดแอป: ถ้าตั้งค่าไว้แล้วและเครื่องนี้ยังไม่มีจุดวางถังเลย → ดึงให้อัตโนมัติ
  *  ถ้าในเครื่องมีข้อมูลอยู่แล้ว จะไม่แตะเด็ดขาด รอผู้ใช้กดเอง (กันข้อมูลหายโดยไม่ตั้งใจ) */
 function initSync(){
+  $('sAuto').checked = ui.sync.auto;
   const chk = normalizeGasUrl(ui.sync.url);
   if (!chk.ok){
+    stopAutoTimer();
     setSync('idle', 'ยังไม่ได้เชื่อมต่อ — ใช้งานออฟไลน์อยู่ วางลิงก์ GAS ด้านล่างเพื่อแชร์ข้อมูลกับเครื่องอื่น');
     return;
   }
+  if (ui.sync.auto) startAutoTimer();
   if (!state.bins.length){ syncPull(); return; }
   setSync('idle', 'ตั้งค่าไว้แล้ว · กด "ดึงลงเครื่อง" เพื่อเอาของส่วนกลางมา หรือ "ส่งขึ้นส่วนกลาง" เพื่ออัปเดตให้คนอื่น');
 }
@@ -2701,6 +2853,52 @@ test('stateFromRemote: ข้อมูลว่าง/ไม่มี bins ไ�
 });
 test('stateFromRemote: กรองถังที่ไม่มีพิกัดออก', () => {
   assertEq(stateFromRemote({ bins:[{ id:'ok', type:'green', x:10, y:10 }, { id:'bad', type:'green' }] }).bins.length, 1);
+});
+
+test('syncSnapshot: ข้อมูลเดิมต้องได้ค่าเท่ากัน (จะได้ไม่ยิงเน็ตซ้ำ)', () => {
+  const b = [{ no:1, id:'B1', type:'green', x:300, y:700, qty:1, note:'' }];
+  const m = { docNo:'A', preparedBy:'', dept:'', rev:'00', note:'' };
+  assertEq(syncSnapshot(b, m), syncSnapshot(b, m));
+});
+test('syncSnapshot: สลับลำดับใน array แต่ no เดิม ถือว่าไม่เปลี่ยน', () => {
+  const b1 = [{ no:1, id:'B1', type:'green', x:1, y:1, qty:1, note:'' }, { no:2, id:'B2', type:'blue', x:2, y:2, qty:1, note:'' }];
+  const b2 = [b1[1], b1[0]];
+  assertEq(syncSnapshot(b1, {}), syncSnapshot(b2, {}));
+});
+test('syncSnapshot: ย้ายถัง / เปลี่ยนจำนวน / เปลี่ยน meta ต้องได้ค่าต่าง', () => {
+  const b = [{ no:1, id:'B1', type:'green', x:300, y:700, qty:1, note:'' }];
+  assertTrue(syncSnapshot(b, {}) !== syncSnapshot([{ ...b[0], x:301 }], {}));
+  assertTrue(syncSnapshot(b, {}) !== syncSnapshot([{ ...b[0], qty:2 }], {}));
+  assertTrue(syncSnapshot(b, {}) !== syncSnapshot(b, { docNo:'X' }));
+});
+test('syncSnapshot: ชุดว่าง / meta เป็น null ไม่พัง', () => {
+  assertEq(syncSnapshot([], null), syncSnapshot([], {}));
+});
+
+const AUTO_BASE = { auto:true, busy:false, url:'https://script.google.com/macros/s/A/exec', key:'K', remoteCount:0, lastSnapshot:null };
+const AUTO_BIN = [{ no:1, id:'B1', type:'green', x:300, y:700, qty:1, note:'' }];
+test('autoSaveDecision: ครบเงื่อนไขและข้อมูลเปลี่ยน → ส่ง', () => {
+  assertEq(autoSaveDecision(AUTO_BASE, AUTO_BIN, {}).go, true);
+});
+test('autoSaveDecision: ข้อมูลไม่เปลี่ยน → ไม่ส่ง (หัวใจของการประหยัดโควตา)', () => {
+  const s = { ...AUTO_BASE, lastSnapshot: syncSnapshot(AUTO_BIN, {}) };
+  assertEq(autoSaveDecision(s, AUTO_BIN, {}), { go:false, why:'ข้อมูลไม่เปลี่ยน' });
+});
+test('autoSaveDecision: ปิดอยู่ / กำลังทำงานอื่นอยู่ → ไม่ส่ง', () => {
+  assertEq(autoSaveDecision({ ...AUTO_BASE, auto:false }, AUTO_BIN, {}).why, 'ปิดอยู่');
+  assertEq(autoSaveDecision({ ...AUTO_BASE, busy:true }, AUTO_BIN, {}).why, 'กำลังทำงานอื่นอยู่');
+});
+test('autoSaveDecision: ลิงก์ผิด / ไม่มีรหัส → ไม่ส่ง', () => {
+  assertEq(autoSaveDecision({ ...AUTO_BASE, url:'ไม่ใช่ลิงก์' }, AUTO_BIN, {}).why, 'ลิงก์ยังไม่ถูกต้อง');
+  assertEq(autoSaveDecision({ ...AUTO_BASE, key:'' }, AUTO_BIN, {}).why, 'ยังไม่ใส่รหัส');
+});
+test('autoSaveDecision: เครื่องว่างแต่ส่วนกลางมีของ → ห้ามส่ง (กันล้างข้อมูลคนอื่น)', () => {
+  const s = { ...AUTO_BASE, remoteCount:12 };
+  assertEq(autoSaveDecision(s, [], {}).go, false);
+});
+test('autoSaveDecision: เครื่องว่างและส่วนกลางก็ว่าง → ส่งได้ (ไม่มีอะไรให้เสียหาย)', () => {
+  const s = { ...AUTO_BASE, remoteCount:0, lastSnapshot:'ของเก่า' };
+  assertEq(autoSaveDecision(s, [], {}).go, true);
 });
 
 test('gasErrText: แปลงรหัส error เป็นภาษาไทย', () => {
