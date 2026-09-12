@@ -2249,6 +2249,24 @@ function docSvg(kind){
   });
   clone.querySelectorAll('[filter]').forEach(el => el.removeAttribute('filter'));
 
+  /* ── ชั้นที่ 3: ไม่เหลือ url(#..) เลยแม้แต่ตัวเดียว ──
+   * เคสที่เดย์เจอ: ค้างแท็บ 3 มิติ (ทำให้ #view-2d ถูกซ่อน) แล้วส่งออก PDF → กรอบอาคารหาย
+   * บางเบราว์เซอร์ไม่ยอมวาด paint server (gradient/pattern) ที่อ้างจากสำเนาซึ่งต้นทางถูกซ่อนอยู่
+   * หลักฐาน: ในภาพที่เดย์ส่งมา ทุกชิ้นที่ใช้ "สีตรงๆ" รอดหมด ทุกชิ้นที่อ้าง url(#..) หายหมด
+   * จึงแปลงให้เป็นสีตรงๆ ทั้งหมด: ไล่เฉด → สีทึบจาก stop แรก · ลายตาราง (pattern) → ไม่ทาสี */
+  const solid = {};
+  clone.querySelectorAll('linearGradient, radialGradient').forEach(g => {
+    const st = g.querySelector('stop');
+    solid[g.id] = (st && (st.getAttribute('stop-color') || '')) || 'none';
+  });
+  clone.querySelectorAll('pattern').forEach(p => { solid[p.id] = 'none'; });
+  clone.querySelectorAll('*').forEach(el => {
+    for (const a of [...el.attributes]){
+      const m = /^url\(#([^)]+)\)$/.exec((a.value || '').trim());
+      if (m && solid[m[1]] !== undefined) el.setAttribute(a.name, solid[m[1]]);
+    }
+  });
+
   return clone.outerHTML;
 }
 
@@ -2696,6 +2714,17 @@ for (const kind of ['2d', 'iso']){
       }
     });
     assertEq(miss, []);
+  });
+  test(`docSvg('${kind}'): ไม่เหลือ url(#..) เลยแม้แต่ตัวเดียว`, () => {
+    const left = [];
+    docSvgProbe(kind).querySelectorAll('*').forEach(el => {
+      for (const a of el.attributes) if (/^url\(#/.test((a.value || '').trim())) left.push(el.tagName + '@' + a.name);
+    });
+    assertEq(left, []);
+  });
+  test(`docSvg('${kind}'): กล่องอาคารทาสีตรงๆ ไม่ใช่ไล่เฉด`, () => {
+    const fills = [...docSvgProbe(kind).querySelectorAll('rect, polygon')].map(e => e.getAttribute('fill') || '');
+    assertEq(fills.filter(f => f.startsWith('url(')), []);
   });
 }
 test('docSvg: สำเนา 2d กับ iso ไม่ใช้ id ชนกัน', () => {
