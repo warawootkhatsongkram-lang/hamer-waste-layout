@@ -438,6 +438,24 @@ button{cursor:pointer; border:0; background:none}
 .sign .ln{height:1px;background:var(--line);margin-bottom:2.5mm}
 .sign b{display:block;color:var(--cream);font-weight:500;margin-bottom:1mm}
 
+/* --- แผงเชื่อมต่อส่วนกลาง --- */
+.sync-status{
+  display:flex;align-items:flex-start;gap:9px;
+  padding:9px 11px;border-radius:9px;font-size:12px;line-height:1.5;margin-bottom:11px;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.24);color:var(--cream-2);
+}
+.sync-status i{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:var(--cream-3);margin-top:4px}
+.sync-status.s-ok{border-color:rgba(63,191,127,.42);color:#BFF0D6}
+.sync-status.s-ok i{background:var(--ok)}
+.sync-status.s-err{border-color:rgba(224,96,74,.45);color:#FFC9BE}
+.sync-status.s-err i{background:var(--danger)}
+.sync-status.s-busy{border-color:rgba(224,164,74,.45);color:#F4D9AE}
+.sync-status.s-busy i{background:var(--warn);animation:pulse 1.2s ease-in-out infinite}
+.sync-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.sync-actions .btn{flex:1 1 92px}
+.sync-hint{margin:11px 0 0;font-size:11.5px;color:var(--cream-3);line-height:1.55}
+.sync-hint code{background:rgba(0,0,0,.4);padding:1px 5px;border-radius:4px;font-size:11px;color:var(--gold)}
+
 /* ══════════════════════ 6. DEBUG (?debug=1) ══════════════════════ */
 #debugPanel{
   display:none;position:fixed;left:10px;bottom:10px;z-index:500;width:300px;max-height:44vh;overflow:auto;
@@ -598,6 +616,37 @@ button{cursor:pointer; border:0; background:none}
 
       <section class="panel">
         <div class="panel-hd">
+          <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.2 9.2 4.6 4.6 0 0 0 6.5 19z"/><path d="M12 12v5M9.5 14.5 12 12l2.5 2.5"/></svg>
+          <h2>เชื่อมต่อส่วนกลาง</h2>
+        </div>
+        <div class="panel-bd">
+          <div class="sync-status" id="syncStatus"><i></i><span id="syncMsg">ยังไม่ได้เชื่อมต่อ — ใช้งานออฟไลน์อยู่</span></div>
+          <div class="fld" style="margin-bottom:9px">
+            <label for="sUrl">ลิงก์ Web App (GAS)</label>
+            <input id="sUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <div class="fld" style="margin-bottom:9px">
+            <label for="sKey">รหัสสำหรับบันทึก</label>
+            <input id="sKey" type="password" autocomplete="off" placeholder="เว้นว่างไว้ = อ่านได้อย่างเดียว">
+          </div>
+          <div class="fld">
+            <label for="sWho">ชื่อผู้แก้ไข (แสดงให้คนอื่นเห็น)</label>
+            <input id="sWho" autocomplete="off" placeholder="เช่น เดย์ / หัวหน้ากะ A">
+          </div>
+          <div class="sync-actions">
+            <button class="btn btn--sm btn--ghost" id="btnSyncTest">ทดสอบ</button>
+            <button class="btn btn--sm btn--ghost" id="btnSyncPull">ดึงลงเครื่อง</button>
+            <button class="btn btn--sm btn--primary" id="btnSyncPush">ส่งขึ้นส่วนกลาง</button>
+          </div>
+          <p class="sync-hint">
+            วางลิงก์ที่ได้จากการ Deploy <code>gas-backend.gs</code> (ลงท้ายด้วย <code>/exec</code>)<br>
+            ค่าที่กรอกเก็บไว้ใน<b>เครื่องนี้เครื่องเดียว</b> ไม่ได้ฝังอยู่ในหน้าเว็บ — เครื่องอื่นต้องกรอกเอง
+          </p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd">
           <svg class="hd-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
           <h2>สำรอง / กู้คืนข้อมูล</h2>
         </div>
@@ -712,6 +761,10 @@ const APP_NAME = 'ผังจุดวางถังขยะแยกปร�
 const SITE_NAME = 'โรงงาน HAMER';
 const SCHEMA_VERSION = 1;
 const LS_KEY = 'hamer_waste_layout_v1';
+/* ตั้งค่าการเชื่อมต่อ Google Sheet — เก็บแยกคีย์ ไม่ปนกับข้อมูลจุดวางถัง
+   และไม่ถูก export ไปกับไฟล์ JSON สำรอง (รหัสจะได้ไม่หลุดไปกับไฟล์ที่ส่งต่อ) */
+const LS_SYNC = 'hamer_waste_sync_v1';
+const SYNC_TIMEOUT_MS = 15000;
 
 /* รูปถังขยะจริง 3 ใบ — ดึงออกจาก Lay-Out-จุดแยกขยะ.xlsx แล้วลบพื้นหลังขาว */
 const BIN_IMG = {
@@ -805,7 +858,14 @@ const ui = {
   vb: { '2d':null, 'iso':null },
   drag: null,
   three: null,
-  debug: false
+  debug: false,
+  sync: {
+    url: '', key: '', who: '',
+    dataRev: null,          // รุ่นข้อมูลล่าสุดที่เครื่องนี้รู้จัก — ใช้กันเขียนทับงานคนอื่น
+    busy: false,
+    status: 'idle',         // 'idle' | 'busy' | 'ok' | 'err'
+    msg: ''
+  }
 };
 
 /* ===== 3. DATA LAYER (load / save / migrate) ===== */
@@ -849,6 +909,29 @@ function load(){
 function save(){
   try { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
   catch (e) { console.error('[HAMER] บันทึกไม่สำเร็จ', e); alert('บันทึกลงเครื่องไม่สำเร็จ: ' + e.message); }
+}
+
+/* ── ตั้งค่าการเชื่อมต่อส่วนกลาง (แยกคีย์จากข้อมูลจุดวางถัง) ── */
+function loadSyncCfg(){
+  try {
+    const raw = localStorage.getItem(LS_SYNC);
+    if (!raw) return;
+    const o = JSON.parse(raw) || {};
+    ui.sync.url = typeof o.url === 'string' ? o.url : '';
+    ui.sync.key = typeof o.key === 'string' ? o.key : '';
+    ui.sync.who = typeof o.who === 'string' ? o.who : '';
+    ui.sync.dataRev = typeof o.dataRev === 'number' ? o.dataRev : null;
+  } catch (e) {
+    console.error('[HAMER] อ่านการตั้งค่าเชื่อมต่อไม่สำเร็จ — คงค่าเดิมไว้ ไม่เขียนทับ', e);
+  }
+}
+
+function saveSyncCfg(){
+  try {
+    localStorage.setItem(LS_SYNC, JSON.stringify({
+      url: ui.sync.url, key: ui.sync.key, who: ui.sync.who, dataRev: ui.sync.dataRev
+    }));
+  } catch (e) { console.error('[HAMER] บันทึกการตั้งค่าเชื่อมต่อไม่สำเร็จ', e); }
 }
 
 function pushHistory(){
@@ -996,6 +1079,59 @@ function isoBounds(pad){
     }
   }
   return { x: minX - pad, y: minY - pad, w: (maxX - minX) + pad * 2, h: (maxY - minY) + pad * 2 };
+}
+
+/** ตรวจและทำความสะอาดลิงก์ Web App ของ GAS (pure)
+ *  คืน { ok, url, error } — บอกสาเหตุเป็นภาษาคนเมื่อลิงก์ผิด จะได้ไม่ต้องเดา */
+function normalizeGasUrl(raw){
+  const u = String(raw == null ? '' : raw).trim();
+  if (!u) return { ok:false, url:'', error:'ยังไม่ได้ใส่ลิงก์' };
+  if (!/^https:\/\//i.test(u)) return { ok:false, url:u, error:'ลิงก์ต้องขึ้นต้นด้วย https://' };
+  if (!/script\.google\.com\/macros\//i.test(u)) return { ok:false, url:u, error:'ไม่ใช่ลิงก์ Web App ของ Google Apps Script' };
+  if (/\/dev(\?|#|$)/i.test(u)) return { ok:false, url:u, error:'ใช้ลิงก์ที่ลงท้ายด้วย /exec ไม่ใช่ /dev' };
+  if (!/\/exec(\?|#|$)/i.test(u)) return { ok:false, url:u, error:'ลิงก์ต้องลงท้ายด้วย /exec' };
+  return { ok:true, url:u, error:'' };
+}
+
+/** แปลงถังเป็นรูปแบบที่ backend รับ เรียงตามลำดับจุด (pure) */
+function binsToWire(bins){
+  return [...(bins || [])].sort((a, b) => a.no - b.no).map(b => ({
+    no: b.no, id: b.id, type: b.type,
+    x: Math.round(b.x * 100) / 100,
+    y: Math.round(b.y * 100) / 100,
+    qty: b.qty, note: b.note || ''
+  }));
+}
+
+/** สร้าง state ชุดใหม่จากข้อมูลส่วนกลาง (pure) — ผ่าน migrate เพื่อกรองของแปลกปลอมออก */
+function stateFromRemote(payload){
+  return migrate({
+    version: SCHEMA_VERSION,
+    bins: (payload && payload.bins) || [],
+    seq: 0,
+    meta: (payload && payload.meta) || {}
+  });
+}
+
+/** แปลงรหัส error จาก backend เป็นข้อความไทย (pure) */
+function gasErrText(r){
+  if (!r) return 'ไม่ได้รับคำตอบจากปลายทาง';
+  const m = {
+    BAD_KEY:        'รหัสสำหรับบันทึกไม่ถูกต้อง',
+    NOT_SETUP:      'ยังไม่ได้รันฟังก์ชัน setup ใน Apps Script',
+    TOO_MANY_BINS:  'จุดวางถังเกินจำนวนที่ฝั่งเซิร์ฟเวอร์กำหนด',
+    BUSY:           'มีคนกำลังบันทึกอยู่ ลองใหม่อีกครั้ง',
+    NO_BODY:        'ส่งข้อมูลไปไม่ครบ',
+    BAD_JSON:       'รูปแบบข้อมูลที่ส่งไปผิด',
+    UNKNOWN_ACTION: 'ปลายทางไม่รู้จักคำสั่งนี้ (โค้ด GAS อาจเป็นเวอร์ชันเก่า)',
+    SERVER_ERROR:   'ฝั่ง Apps Script มีข้อผิดพลาด'
+  };
+  return m[r.error] || r.message || r.error || 'ไม่ทราบสาเหตุ';
+}
+
+/** เวลาปัจจุบันแบบสั้นสำหรับแสดงสถานะ */
+function nowHm(){
+  return new Date().toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' }) + ' น.';
 }
 
 /** escape ข้อความก่อนยัดเข้า HTML/SVG */
@@ -1377,7 +1513,26 @@ function renderInspector(){
       <i style="background:${x.light}"></i></button>`).join('');
 }
 
-/* ---- 5.5 debug panel (?debug=1) ---- */
+/* ---- 5.5 สถานะการเชื่อมต่อส่วนกลาง ---- */
+function renderSync(){
+  const s = ui.sync, box = $('syncStatus');
+  box.classList.remove('s-ok', 's-err', 's-busy');
+  if (s.status === 'ok') box.classList.add('s-ok');
+  else if (s.status === 'err') box.classList.add('s-err');
+  else if (s.status === 'busy') box.classList.add('s-busy');
+  $('syncMsg').textContent = s.msg || 'ยังไม่ได้เชื่อมต่อ — ใช้งานออฟไลน์อยู่';
+  ['btnSyncTest', 'btnSyncPull', 'btnSyncPush'].forEach(id => { $(id).disabled = s.busy; });
+}
+
+function setSync(status, msg){
+  ui.sync.status = status;
+  ui.sync.msg = msg;
+  ui.sync.busy = (status === 'busy');
+  renderSync();
+  renderDebug();
+}
+
+/* ---- 5.6 debug panel (?debug=1) ---- */
 function renderDebug(){
   if (!ui.debug) return;
   const s = summarize(state.bins);
@@ -1391,7 +1546,9 @@ function renderDebug(){
     three=<b>${ui.three ? 'active(' + ui.three.binGroup.children.length + ' meshes)' : (window.__threeError ? 'FAILED' : (window.__three ? 'lib-loaded/idle' : 'loading'))}</b><br>
     sel=<b>${sel ? pointCode(sel.no)+' ('+sel.x.toFixed(0)+','+sel.y.toFixed(0)+') '+sel.type+' x'+sel.qty : '-'}</b><br>
     zoneAt(sel)=<b>${sel ? zoneLabel(sel.x, sel.y) : '-'}</b><br>
-    lsBytes=<b>${(localStorage.getItem(LS_KEY) || '').length}</b> loadErr=<b>${ui.loadError || 'none'}</b>`;
+    lsBytes=<b>${(localStorage.getItem(LS_KEY) || '').length}</b> loadErr=<b>${ui.loadError || 'none'}</b><br>
+    sync=<b>${ui.sync.status}</b> urlOk=<b>${normalizeGasUrl(ui.sync.url).ok}</b> key=<b>${ui.sync.key ? 'set(' + ui.sync.key.length + ')' : '-'}</b> rev=<b>${ui.sync.dataRev === null ? '-' : ui.sync.dataRev}</b><br>
+    syncMsg=<b>${esc(ui.sync.msg).slice(0, 90)}</b>`;
 }
 
 /* ===== 6. EVENT HANDLERS ===== */
@@ -1612,7 +1769,15 @@ $('iNote').addEventListener('input', e => {
   $(el).addEventListener('input', e => { state.meta[key] = e.target.value; save(); });
 });
 
-/* --- 6.8 สำรอง / กู้คืน / ล้าง --- */
+/* --- 6.8 เชื่อมต่อส่วนกลาง --- */
+$('sUrl').addEventListener('input', e => { ui.sync.url = e.target.value.trim(); ui.sync.dataRev = null; saveSyncCfg(); });
+$('sKey').addEventListener('input', e => { ui.sync.key = e.target.value.trim(); saveSyncCfg(); });
+$('sWho').addEventListener('input', e => { ui.sync.who = e.target.value.slice(0, 60); saveSyncCfg(); });
+$('btnSyncTest').addEventListener('click', () => syncTest());
+$('btnSyncPull').addEventListener('click', () => syncPull());
+$('btnSyncPush').addEventListener('click', () => syncPush(false));
+
+/* --- 6.9 สำรอง / กู้คืน / ล้าง --- */
 $('btnSave').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
@@ -1648,7 +1813,7 @@ $('btnClear').addEventListener('click', () => {
   save(); renderAll();
 });
 
-/* --- 6.9 คีย์ลัด --- */
+/* --- 6.10 คีย์ลัด --- */
 document.addEventListener('keydown', e => {
   if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
   if (e.key === 'Escape'){
@@ -1952,6 +2117,148 @@ window.addEventListener('resize', () => { resize3D(); if ($('modal').classList.c
 window.addEventListener('three-ready', () => { if (ui.view === '3d') { ensure3D(); resize3D(); } renderDebug(); });
 window.addEventListener('three-failed', () => { $('fallback3d').classList.add('show'); renderDebug(); });
 
+/* ═══════════ เชื่อมต่อส่วนกลาง (Google Sheet ผ่าน GAS) ═══════════
+   หลัก offline-first: localStorage คือตัวจริงเสมอ ส่วนกลางเป็นชั้นเสริม
+   แอปใช้งานได้เต็มรูปแบบแม้ไม่ได้ตั้งค่าส่วนนี้เลย                      */
+
+/** เรียก GAS — GET ใช้ query string, POST ห้ามใส่ header Content-Type (จะโดน CORS preflight) */
+async function gasFetch(opts){
+  const chk = normalizeGasUrl(ui.sync.url);
+  if (!chk.ok) throw new Error(chk.error);
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), SYNC_TIMEOUT_MS);
+  try {
+    let url = chk.url;
+    const init = { method: 'GET', signal: ctrl.signal, redirect: 'follow' };
+    if (opts.body){
+      init.method = 'POST';
+      init.body = JSON.stringify(opts.body);   // ไม่ตั้ง Content-Type โดยเจตนา → ได้ text/plain = simple request
+    } else {
+      url += (url.indexOf('?') >= 0 ? '&' : '?') + 'action=' + encodeURIComponent(opts.action || 'ping');
+    }
+
+    const res = await fetch(url, init);
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch (parseErr) {
+      if (text.trim().charAt(0) === '<')
+        throw new Error('ปลายทางตอบกลับเป็นหน้าเว็บ ไม่ใช่ข้อมูล — ตรวจว่าตอน Deploy ตั้ง "Who has access = Anyone" แล้ว');
+      throw new Error('ข้อมูลที่ได้กลับมาไม่ใช่ JSON');
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error('หมดเวลารอ ' + (SYNC_TIMEOUT_MS / 1000) + ' วินาที — เน็ตช้าหรือลิงก์ผิด');
+    if (e instanceof TypeError) throw new Error('ต่อปลายทางไม่ได้ — ตรวจอินเทอร์เน็ตและลิงก์อีกครั้ง');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** ทดสอบว่าลิงก์ใช้ได้จริง และดูว่าส่วนกลางมีข้อมูลอยู่เท่าไร */
+async function syncTest(){
+  setSync('busy', 'กำลังทดสอบการเชื่อมต่อ…');
+  try {
+    const ping = await gasFetch({ action: 'ping' });
+    if (!ping || ping.ok !== true) throw new Error(gasErrText(ping));
+    const info = await gasFetch({ action: 'load' });
+    if (info && info.ok === true){
+      ui.sync.dataRev = info.dataRev;
+      saveSyncCfg();
+      setSync('ok', 'เชื่อมต่อได้ · ส่วนกลางมี ' + (info.bins || []).length + ' จุด (รุ่นที่ ' + info.dataRev +
+        (info.updatedBy ? ' · แก้ล่าสุดโดย ' + info.updatedBy : '') + ')');
+    } else {
+      setSync('ok', 'เชื่อมต่อได้ (API v' + ping.api + ') แต่ยังอ่านข้อมูลไม่ได้: ' + gasErrText(info));
+    }
+  } catch (e) {
+    setSync('err', 'เชื่อมต่อไม่สำเร็จ: ' + e.message);
+  }
+}
+
+/** ดึงข้อมูลส่วนกลางลงเครื่อง — ถ้าในเครื่องมีข้อมูลอยู่แล้วจะถามก่อนทับ */
+async function syncPull(){
+  setSync('busy', 'กำลังดึงข้อมูลจากส่วนกลาง…');
+  try {
+    const r = await gasFetch({ action: 'load' });
+    if (!r || r.ok !== true) throw new Error(gasErrText(r));
+
+    if (state.bins.length && !confirm(
+        'ดึงข้อมูลส่วนกลาง ' + (r.bins || []).length + ' จุด มาแทนที่ข้อมูลในเครื่องนี้ ' + state.bins.length + ' จุด?\n' +
+        '(ถ้าพลาด กดปุ่ม "ย้อนกลับ" บนแผนผังเรียกคืนได้)')){
+      setSync('idle', 'ยกเลิกการดึงข้อมูล — ข้อมูลในเครื่องยังอยู่ครบ');
+      return;
+    }
+
+    const ns = stateFromRemote(r);
+    if (!ns) throw new Error('ข้อมูลจากส่วนกลางผิดรูปแบบ');
+
+    pushHistory();
+    state = ns;
+    ui.sync.dataRev = r.dataRev;
+    ui.selectedId = null;
+    save(); saveSyncCfg(); fillMetaInputs(); renderAll();
+    setSync('ok', 'ดึงข้อมูลแล้ว ' + state.bins.length + ' จุด · รุ่นที่ ' + r.dataRev +
+      (r.updatedBy ? ' โดย ' + r.updatedBy : '') + ' · ' + nowHm());
+  } catch (e) {
+    setSync('err', 'ดึงไม่สำเร็จ: ' + e.message);
+  }
+}
+
+/** ส่งข้อมูลในเครื่องขึ้นส่วนกลาง — ถ้ามีคนบันทึกไปก่อน จะถามก่อนทับ (ไม่ทับเงียบๆ) */
+async function syncPush(force){
+  if (!ui.sync.key){
+    setSync('err', 'ต้องใส่ "รหัสสำหรับบันทึก" ก่อนถึงจะส่งขึ้นส่วนกลางได้');
+    return;
+  }
+  setSync('busy', force ? 'กำลังบันทึกทับ…' : 'กำลังส่งขึ้นส่วนกลาง…');
+  try {
+    const r = await gasFetch({ body: {
+      action: 'save',
+      key: ui.sync.key,
+      dataRev: (typeof ui.sync.dataRev === 'number' ? ui.sync.dataRev : 0),
+      force: !!force,
+      by: ui.sync.who || '',
+      bins: binsToWire(state.bins),
+      meta: state.meta
+    }});
+
+    if (r && r.error === 'STALE'){
+      const yes = confirm(
+        'มีคนอื่นบันทึกข้อมูลไปแล้ว\n' +
+        'ส่วนกลางตอนนี้: รุ่นที่ ' + r.serverRev + (r.updatedBy ? ' โดย ' + r.updatedBy : '') +
+        ' · ' + (r.serverBins || []).length + ' จุด\n' +
+        'ของเรา: ' + state.bins.length + ' จุด\n\n' +
+        'กด OK = บันทึกทับด้วยข้อมูลของเรา (ของเขาจะถูกแทนที่ แต่ยังกู้คืนได้จากชีต _history)\n' +
+        'กด Cancel = ยกเลิก แล้วกด "ดึงลงเครื่อง" เพื่อดูของเขาก่อน');
+      if (yes) return syncPush(true);
+      ui.sync.dataRev = r.serverRev;
+      saveSyncCfg();
+      setSync('err', 'ยกเลิก — ส่วนกลางเป็นรุ่นที่ ' + r.serverRev + ' แล้ว กด "ดึงลงเครื่อง" ก่อนค่อยส่งใหม่');
+      return;
+    }
+
+    if (!r || r.ok !== true) throw new Error(gasErrText(r));
+    ui.sync.dataRev = r.dataRev;
+    saveSyncCfg();
+    setSync('ok', 'ส่งขึ้นส่วนกลางแล้ว ' + r.saved + ' จุด · รุ่นที่ ' + r.dataRev + ' · ' + nowHm());
+  } catch (e) {
+    setSync('err', 'ส่งไม่สำเร็จ: ' + e.message);
+  }
+}
+
+/** ตอนเปิดแอป: ถ้าตั้งค่าไว้แล้วและเครื่องนี้ยังไม่มีจุดวางถังเลย → ดึงให้อัตโนมัติ
+ *  ถ้าในเครื่องมีข้อมูลอยู่แล้ว จะไม่แตะเด็ดขาด รอผู้ใช้กดเอง (กันข้อมูลหายโดยไม่ตั้งใจ) */
+function initSync(){
+  const chk = normalizeGasUrl(ui.sync.url);
+  if (!chk.ok){
+    setSync('idle', 'ยังไม่ได้เชื่อมต่อ — ใช้งานออฟไลน์อยู่ วางลิงก์ GAS ด้านล่างเพื่อแชร์ข้อมูลกับเครื่องอื่น');
+    return;
+  }
+  if (!state.bins.length){ syncPull(); return; }
+  setSync('idle', 'ตั้งค่าไว้แล้ว · กด "ดึงลงเครื่อง" เพื่อเอาของส่วนกลางมา หรือ "ส่งขึ้นส่วนกลาง" เพื่ออัปเดตให้คนอื่น');
+}
+
 /* ═══════════ เอกสาร / PDF ═══════════ */
 function snapshot3D(){
   if (!ui.three) return null;
@@ -2169,18 +2476,27 @@ function fillMetaInputs(){
   $('mNote').value = state.meta.note || '';
 }
 
+function fillSyncInputs(){
+  $('sUrl').value = ui.sync.url || '';
+  $('sKey').value = ui.sync.key || '';
+  $('sWho').value = ui.sync.who || '';
+}
+
 function init(){
   const qs = new URLSearchParams(location.search);
   ui.debug = qs.get('debug') === '1';
   if (ui.debug) $('debugPanel').classList.add('show');
 
   load();
+  loadSyncCfg();
   fillMetaInputs();
+  fillSyncInputs();
   renderLegendOnce();
   bindSvg($('svg2d'), '2d');
   bindSvg($('svgIso'), 'iso');
   syncModeButtons();
   renderAll();
+  initSync();
 
   if (qs.get('test') === '1') runTests();
 }
@@ -2336,6 +2652,66 @@ test('thaiDate: แสดงเป็น พ.ศ. (ปี ค.ศ. + 543)', () =
   assertTrue(out.indexOf('2569') >= 0, 'ได้ ' + out);
 });
 test('thaiDate: วันที่ผิดรูปแบบ คืน "-"', () => assertEq(thaiDate('ไม่ใช่วันที่'), '-'));
+
+test('normalizeGasUrl: ลิงก์ /exec ที่ถูกต้อง', () => {
+  const r = normalizeGasUrl('  https://script.google.com/macros/s/AKfycbABC123/exec  ');
+  assertEq([r.ok, r.url], [true, 'https://script.google.com/macros/s/AKfycbABC123/exec']);
+});
+test('normalizeGasUrl: ค่าว่าง / null / ช่องว่างล้วน', () => {
+  assertEq(normalizeGasUrl('').error, 'ยังไม่ได้ใส่ลิงก์');
+  assertEq(normalizeGasUrl(null).ok, false);
+  assertEq(normalizeGasUrl('   ').error, 'ยังไม่ได้ใส่ลิงก์');
+});
+test('normalizeGasUrl: ลิงก์ /dev ต้องถูกปฏิเสธ (เป็นกับดักที่คนพลาดบ่อย)', () => {
+  const r = normalizeGasUrl('https://script.google.com/macros/s/AKfycbABC123/dev');
+  assertEq([r.ok, r.error], [false, 'ใช้ลิงก์ที่ลงท้ายด้วย /exec ไม่ใช่ /dev']);
+});
+test('normalizeGasUrl: ไม่ใช่ https / ไม่ใช่โดเมน GAS / ไม่ลงท้าย exec', () => {
+  assertEq(normalizeGasUrl('http://script.google.com/macros/s/x/exec').ok, false);
+  assertEq(normalizeGasUrl('https://example.com/exec').ok, false);
+  assertEq(normalizeGasUrl('https://script.google.com/macros/s/AKfycbABC123').ok, false);
+});
+test('normalizeGasUrl: มี query string ต่อท้าย /exec ยังใช้ได้', () => {
+  assertTrue(normalizeGasUrl('https://script.google.com/macros/s/AKfycbX/exec?v=2').ok);
+});
+
+test('binsToWire: เรียงตามลำดับจุดและปัดพิกัด 2 ตำแหน่ง', () => {
+  const w = binsToWire([
+    { no:2, id:'B2', type:'blue',  x:1400.005, y:950, qty:1, note:'' },
+    { no:1, id:'B1', type:'green', x:300.126,  y:700, qty:2, note:'คลัง' }
+  ]);
+  assertEq(w.map(b => b.no), [1, 2]);
+  assertEq([w[0].x, w[1].x], [300.13, 1400.01]);
+});
+test('binsToWire: ชุดว่าง / null', () => {
+  assertEq(binsToWire([]), []);
+  assertEq(binsToWire(null), []);
+});
+test('binsToWire: note เป็น undefined → สตริงว่าง', () => {
+  assertEq(binsToWire([{ no:1, id:'B', type:'green', x:1, y:1, qty:1 }])[0].note, '');
+});
+
+test('stateFromRemote: แปลงข้อมูลส่วนกลางเป็น state ได้', () => {
+  const s = stateFromRemote({ bins:[{ no:3, id:'B3', type:'yellow', x:300, y:700, qty:2, note:'n' }], meta:{ docNo:'D1' } });
+  assertEq([s.bins.length, s.bins[0].type, s.meta.docNo, s.seq], [1, 'yellow', 'D1', 3]);
+});
+test('stateFromRemote: ข้อมูลว่าง/ไม่มี bins ไม่ทำให้พัง', () => {
+  assertEq(stateFromRemote({}).bins, []);
+  assertEq(stateFromRemote(null).bins, []);
+});
+test('stateFromRemote: กรองถังที่ไม่มีพิกัดออก', () => {
+  assertEq(stateFromRemote({ bins:[{ id:'ok', type:'green', x:10, y:10 }, { id:'bad', type:'green' }] }).bins.length, 1);
+});
+
+test('gasErrText: แปลงรหัส error เป็นภาษาไทย', () => {
+  assertEq(gasErrText({ error:'BAD_KEY' }), 'รหัสสำหรับบันทึกไม่ถูกต้อง');
+  assertEq(gasErrText({ error:'NOT_SETUP' }), 'ยังไม่ได้รันฟังก์ชัน setup ใน Apps Script');
+});
+test('gasErrText: รหัสที่ไม่รู้จัก / ไม่มีคำตอบ', () => {
+  assertEq(gasErrText({ error:'WEIRD', message:'อะไรสักอย่าง' }), 'อะไรสักอย่าง');
+  assertEq(gasErrText(null), 'ไม่ได้รับคำตอบจากปลายทาง');
+  assertEq(gasErrText({}), 'ไม่ทราบสาเหตุ');
+});
 
 test('esc: กัน HTML injection', () => assertEq(esc('<script>&"'), '&lt;script&gt;&amp;&quot;'));
 test('esc: null/undefined คืนสตริงว่าง', () => { assertEq(esc(null), ''); assertEq(esc(undefined), ''); });
