@@ -1732,7 +1732,7 @@ $('btnGoIso').addEventListener('click', () => setView('iso'));
 
 /* --- 6.4 การโต้ตอบบน SVG (2D + ISO) --- */
 function bindSvg(svg, key){
-  let moved = false, downPt = null, panStart = null, dragBin = null, delId = null, planHit = null;
+  let moved = false, downPt = null, panStart = null, dragBin = null, delId = null, planHit = null, dragSpot = null;
 
   svg.addEventListener('pointerdown', e => {
     if (e.button === 2) return;
@@ -1742,7 +1742,7 @@ function bindSvg(svg, key){
     const pinEl = e.target.closest('.pin');
     const delEl = e.target.closest('.pin-del');   // ปุ่ม × ลบด่วน บนถังที่เลือก
     delId = delEl ? delEl.dataset.id : null;       // จำไว้ก่อน — ตอน pointerup เป้าหมายจะกลายเป็น svg (setPointerCapture)
-    const planEl = e.target.closest('.plan-spot'); // หมุดจุดวางตามแผน — ยังเลื่อนผังได้ตามปกติ แตะแล้วปล่อยค่อยเปิดภาพ
+    const planEl = e.target.closest('.plan-spot'); // หมุดจุดวางตามแผน — กดค้างแล้วลาก = ย้ายหมุด · แตะแล้วปล่อยค่อยเปิดภาพ
     planHit = planEl ? planEl.dataset.id : null;
 
     if (delEl){
@@ -1750,6 +1750,8 @@ function bindSvg(svg, key){
     } else if (pinEl && ui.mode === 'select' && !ui.armedType){
       dragBin = { id: pinEl.dataset.id, start: p };
       selectBin(pinEl.dataset.id);
+    } else if (planEl && key === '2d' && ui.mode === 'select' && !ui.armedType && !ui.armedSpot){
+      dragSpot = { id: planEl.dataset.id };        // ลากหมุดเลขได้ (ขยับเกิน 4px ถึงนับว่าลาก ไม่งั้น = แตะเปิดภาพ)
     } else if (!pinEl){
       panStart = { vb: Object.assign({}, ui.vb[key]), sx:e.clientX, sy:e.clientY };
       if (!ui.armedType) svg.classList.add('dragging');
@@ -1768,6 +1770,10 @@ function bindSvg(svg, key){
       const w = key === 'iso' ? isoInverse(p.x, p.y) : { x:p.x, y:p.y };
       const b = state.bins.find(x => x.id === dragBin.id);
       if (b){ b.x = clamp(w.x, 0, WORLD.w); b.y = clamp(w.y, 0, WORLD.h); renderAll(); }
+    } else if (dragSpot){
+      const p = screenToWorld(svg, e); if (!p) return;
+      const sp = state.spots.find(s => s.id === dragSpot.id);
+      if (sp){ sp.x = Math.round(clamp(p.x, 0, WORLD.w) * 100) / 100; sp.y = Math.round(clamp(p.y, 0, WORLD.h) * 100) / 100; render2D(); }
     } else if (panStart){
       const rect = svg.getBoundingClientRect();
       const sx = panStart.vb.w / rect.width, sy = panStart.vb.h / rect.height;
@@ -1783,7 +1789,8 @@ function bindSvg(svg, key){
     svg.classList.remove('dragging');
     const wasDrag = dragBin, wasMoved = moved, wasDel = delId, wasPlan = planHit;
     if (dragBin && moved){ pushHistoryDebounced(); save(); }
-    dragBin = null; panStart = null; downPt = null; delId = null; planHit = null;
+    if (dragSpot && moved){ save(); syncPlanSheet(); }   // ย้ายหมุดแล้ว = บันทึก+ซิงก์ · แผ่นที่เปิดอยู่อัปเดตชื่อโซนใหม่
+    dragBin = null; panStart = null; downPt = null; delId = null; planHit = null; dragSpot = null;
 
     if (wasDel && !wasMoved){ deleteBin(wasDel); renderDebug(); return; }   // แตะ × แล้วปล่อยที่เดิม = ลบทันที (กด Ctrl+Z ย้อนได้)
 
@@ -1813,7 +1820,7 @@ function bindSvg(svg, key){
     if (ui.selectedId){ ui.selectedId = null; renderAll(); }
   });
 
-  svg.addEventListener('pointercancel', () => { dragBin = null; panStart = null; downPt = null; svg.classList.remove('dragging'); });
+  svg.addEventListener('pointercancel', () => { if (dragSpot && moved) save(); dragBin = null; panStart = null; downPt = null; dragSpot = null; svg.classList.remove('dragging'); });
 
   svg.addEventListener('wheel', e => {
     e.preventDefault();
@@ -1906,7 +1913,7 @@ function sortedSpots(){ return [...(state.spots || [])].sort((a, b) => a.no - b.
 
 function planSpot2d(sp){
   const on = ui.planId === sp.id;
-  return `<g class="plan-spot" data-id="${esc(sp.id)}" style="cursor:pointer"><title>จุดที่ ${sp.no} — แตะเพื่อดู/แนบภาพสถานที่จริง</title>
+  return `<g class="plan-spot" data-id="${esc(sp.id)}" style="cursor:pointer"><title>จุดที่ ${sp.no} — แตะเพื่อดู/แนบภาพสถานที่จริง · กดค้างแล้วลากเพื่อย้าย</title>
     ${on ? `<circle cx="${sp.x}" cy="${sp.y}" r="40" fill="none" stroke="#FFC000" stroke-width="3" stroke-dasharray="8 6"/>` : ''}
     <circle cx="${sp.x}" cy="${sp.y}" r="30" fill="transparent"/>
     <circle cx="${sp.x}" cy="${sp.y}" r="21" fill="rgba(192,57,43,.92)" stroke="#FFC000" stroke-width="3"/>
