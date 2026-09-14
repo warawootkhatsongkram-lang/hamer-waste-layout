@@ -1329,6 +1329,11 @@ function pin2d(b){
     <text x="${b.x}" y="${b.y + 27}" fill="#C4CEDA" font-size="14" font-weight="600" text-anchor="middle" font-family="'IBM Plex Sans Thai',sans-serif"
       style="paint-order:stroke" stroke="#08121F" stroke-width="4" stroke-linejoin="round">${pointCode(b.no)}</text>
     <circle cx="${b.x}" cy="${b.y}" r="34" fill="transparent"/>
+    ${sel ? `<g class="pin-del" data-id="${b.id}" style="cursor:pointer"><title>ลบถังนี้</title>
+      <circle cx="${b.x - 30}" cy="${b.y - 52}" r="20" fill="transparent"/>
+      <circle cx="${b.x - 30}" cy="${b.y - 52}" r="13" fill="#E0604A" stroke="#08121F" stroke-width="2.5"/>
+      <path d="M${b.x - 35} ${b.y - 57} L${b.x - 25} ${b.y - 47} M${b.x - 25} ${b.y - 57} L${b.x - 35} ${b.y - 47}" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    </g>` : ''}
   </g>`;
 }
 
@@ -1553,6 +1558,7 @@ function addBinAt(x, y){
   const b = makeBin(ui.armedType, x, y, state.seq - 1);
   state.bins.push(b);
   ui.selectedId = b.id;
+  ui.armedType = null;          // เลือกประเภทถัง 1 ครั้ง = วางได้ 1 ใบ แล้วกลับโหมดเลือก (กันวางซ้ำเกินตั้งใจ)
   save(); renderAll();
 }
 
@@ -1603,7 +1609,7 @@ $('btnGoIso').addEventListener('click', () => setView('iso'));
 
 /* --- 6.4 การโต้ตอบบน SVG (2D + ISO) --- */
 function bindSvg(svg, key){
-  let moved = false, downPt = null, panStart = null, dragBin = null;
+  let moved = false, downPt = null, panStart = null, dragBin = null, delId = null;
 
   svg.addEventListener('pointerdown', e => {
     if (e.button === 2) return;
@@ -1611,8 +1617,12 @@ function bindSvg(svg, key){
     const p = screenToWorld(svg, e); if (!p) return;
     downPt = { sx:e.clientX, sy:e.clientY };
     const pinEl = e.target.closest('.pin');
+    const delEl = e.target.closest('.pin-del');   // ปุ่ม × ลบด่วน บนถังที่เลือก
+    delId = delEl ? delEl.dataset.id : null;       // จำไว้ก่อน — ตอน pointerup เป้าหมายจะกลายเป็น svg (setPointerCapture)
 
-    if (pinEl && ui.mode === 'select' && !ui.armedType){
+    if (delEl){
+      // แตะ × — ไม่เลือก ไม่ลาก ไม่เลื่อนผัง รอลบตอนปล่อยนิ้ว
+    } else if (pinEl && ui.mode === 'select' && !ui.armedType){
       dragBin = { id: pinEl.dataset.id, start: p };
       selectBin(pinEl.dataset.id);
     } else if (!pinEl){
@@ -1646,9 +1656,11 @@ function bindSvg(svg, key){
 
   svg.addEventListener('pointerup', e => {
     svg.classList.remove('dragging');
-    const wasDrag = dragBin, wasMoved = moved;
+    const wasDrag = dragBin, wasMoved = moved, wasDel = delId;
     if (dragBin && moved){ pushHistoryDebounced(); save(); }
-    dragBin = null; panStart = null; downPt = null;
+    dragBin = null; panStart = null; downPt = null; delId = null;
+
+    if (wasDel && !wasMoved){ deleteBin(wasDel); renderDebug(); return; }   // แตะ × แล้วปล่อยที่เดิม = ลบทันที (กด Ctrl+Z ย้อนได้)
 
     if (wasMoved) { renderDebug(); return; }
 
@@ -2315,6 +2327,7 @@ function docSvg(kind){
     }
   });
   clone.querySelectorAll('[filter]').forEach(el => el.removeAttribute('filter'));
+  clone.querySelectorAll('.pin-del').forEach(el => el.remove());   // ปุ่ม × ลบด่วนมีไว้บนหน้าจอเท่านั้น ไม่ต้องไปอยู่ในเอกสาร
 
   /* ── ชั้นที่ 3: ไม่เหลือ url(#..) เลยแม้แต่ตัวเดียว ──
    * เคสที่เดย์เจอ: ค้างแท็บ 3 มิติ (ทำให้ #view-2d ถูกซ่อน) แล้วส่งออก PDF → กรอบอาคารหาย
@@ -2815,6 +2828,23 @@ test('normalizeGasUrl: ค่าว่าง / ลิงก์หน้าแก
   assertEq(normalizeGasUrl('https://script.google.com/u/0/home/projects/1tBwjtYkVgqYtTOb8NALqQ76Uz6liU0pIBcGVVha6CExd0PaRlV_D3tnu/edit'), '');
   assertEq(normalizeGasUrl(GAS_URL.replace(/\/exec$/, '/dev')), '');
   assertEq(normalizeGasUrl(GAS_URL.replace('script.google.com', 'script.google.com.evil.example')), '');
+});
+test('pin2d: ถังที่เลือกมีปุ่ม × ลบด่วน · ถังที่ไม่ได้เลือกไม่มี', () => {
+  const b = { id:'Btestdel', no:1, type:'green', x:500, y:500, qty:1, note:'' };
+  const keep = ui.selectedId;
+  try {
+    ui.selectedId = b.id;
+    assertTrue(pin2d(b).includes('class="pin-del" data-id="Btestdel"'), 'ถังที่เลือกต้องมี ×');
+    ui.selectedId = null;
+    assertTrue(!pin2d(b).includes('pin-del'), 'ถังที่ไม่ได้เลือกต้องไม่มี ×');
+  } finally { ui.selectedId = keep; }
+});
+test('docSvg: ปุ่ม × บนหน้าจอต้องไม่ติดไปในเอกสาร/PDF', () => {
+  const fake = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  fake.setAttribute('class', 'pin-del');
+  $('svg2d').appendChild(fake);
+  try { assertEq(docSvgProbe('2d').querySelectorAll('.pin-del').length, 0); }
+  finally { fake.remove(); }
 });
 
 function runTests(){
