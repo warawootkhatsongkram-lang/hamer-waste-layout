@@ -626,6 +626,12 @@ button{cursor:pointer; border:0; background:none}
             ทุกเครื่องที่เปิดลิงก์นี้เห็นข้อมูลชุดเดียวกัน · ซิงก์ให้อัตโนมัติทุก 10 วินาที<br>
             <b>ไม่ต้องตั้งค่าอะไรเลย</b> — เปิดแล้วใช้ได้ทันที ทั้งคอมและมือถือ
           </p>
+          <div class="fld" style="margin-top:12px"><label for="iGasUrl">ลิงก์ GAS (Web app URL ลงท้าย /exec)</label><input id="iGasUrl" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+            <button class="btn btn--sm btn--ghost" id="btnGasSave">บันทึกลิงก์ + เชื่อมต่อ</button>
+            <button class="btn btn--sm btn--ghost" id="btnGasReset">ใช้ลิงก์เริ่มต้น</button>
+          </div>
+          <p class="sync-hint" id="gasUrlNote"></p>
         </div>
       </section>
 
@@ -751,6 +757,8 @@ const LS_KEY = 'hamer_waste_layout_v1';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxr22mNd3Yi67CLV4CICJLfPO1PBO_MDvdyBubOaZ5u9X5Txo680HKFGbM2O1kWrJzS_Q/exec';
 const SYNC_TIMEOUT_MS = 15000;
 const SYNC_MS = 10000;          // รอบซิงก์ทุก 10 วินาที
+const LS_GAS = 'hamer_waste_gas_url_v1';   // ลิงก์ GAS ที่วางเองในเครื่องนี้ (ไม่มี = ใช้ GAS_URL)
+let gasUrl = GAS_URL;           // ลิงก์ที่ใช้ซิงก์อยู่จริง — loadGasUrl() จะสลับเป็นลิงก์ที่วางเองถ้ามี
 
 /* รูปถังขยะจริง 3 ใบ — ดึงออกจาก Lay-Out-จุดแยกขยะ.xlsx แล้วลบพื้นหลังขาว */
 const BIN_IMG = {
@@ -803,8 +811,8 @@ const ZONES = [
   { id:'F-CAR2',  name:'โรงจอดรถยนต์ (ตะวันตก)',kind:'park',x:48,  y:299, w:33,  h:537, z:40,  mapLines:['โรงจอดรถยนต์'] },
   { id:'F-GUARD', name:'ป้อม รปภ.',            kind:'fac', x:51,   y:868, w:51,  h:61,  z:70,  mapLines:['ป้อม','รปภ.'] },
   { id:'F-CAR3',  name:'โรงจอดรถยนต์ (ใต้)',   kind:'park',x:196,  y:888, w:122, h:122, z:40,  mapLines:['โรงจอด','รถยนต์'] },
-  { id:'F-ELEC',  name:'ห้องควบคุมไฟฟ้า',       kind:'fac', x:323,  y:889, w:122, h:122, z:75,  mapLines:['ห้องควบคุม','ไฟฟ้า'] },
-  { id:'F-WWT',   name:'บ่อบำบัด',              kind:'fac', x:455,  y:887, w:50,  h:122, z:25 },
+  { id:'F-ELEC',  name:'ห้องควบคุมไฟฟ้า',       kind:'fac', x:387,  y:889, w:117, h:122, z:75,  mapLines:['ห้องควบคุม','ไฟฟ้า'] },
+  { id:'F-WWT',   name:'บ่อบำบัด',              kind:'fac', x:329,  y:888, w:50,  h:122, z:25 },
   { id:'F-WC1',   name:'ห้องน้ำไลน์ผลิต (1)',   kind:'fac', x:513,  y:888, w:123, h:122, z:70,  mapLines:['ห้องน้ำ','ไลน์ผลิต (1)'] },
   { id:'F-FIRE',  name:'สถานีดับเพลิง',         kind:'fac', x:642,  y:888, w:125, h:122, z:80,  mapLines:['สถานี','ดับเพลิง'] },
   { id:'F-BOIL',  name:'ห้องบอยเลอร์',          kind:'fac', x:770,  y:888, w:127, h:124, z:95,  mapLines:['ห้อง','บอยเลอร์'] },
@@ -1073,6 +1081,14 @@ function stateFromRemote(payload){
     seq: 0,
     meta: (payload && payload.meta) || {}
   });
+}
+
+/** ตรวจ+ทำความสะอาดลิงก์ GAS ที่ผู้ใช้วาง (pure) — ถูกต้องคืนลิงก์ /exec, ผิดคืน ''
+ *  ตัดช่องว่าง / ?query / #hash / ทับท้ายออกให้ · รับทั้งบัญชีทั่วไปและ Workspace (a/macros/โดเมน) */
+function normalizeGasUrl(s){
+  if (typeof s !== 'string') return '';
+  const u = s.trim().replace(/[?#].*$/, '').replace(/\/+$/, '');
+  return /^https:\/\/script\.google\.com\/(macros|a\/macros\/[^\/\s]+)\/s\/[\w-]{20,}\/exec$/.test(u) ? u : '';
 }
 
 /** แปลงรหัส error จาก backend เป็นข้อความไทย (pure) */
@@ -1735,6 +1751,9 @@ $('iNote').addEventListener('input', e => {
 
 /* --- 6.8 เชื่อมต่อส่วนกลาง --- */
 $('btnSyncNow').addEventListener('click', () => syncTick());
+$('btnGasSave').addEventListener('click', () => applyGasUrl($('iGasUrl').value));
+$('btnGasReset').addEventListener('click', () => applyGasUrl(GAS_URL));
+$('iGasUrl').addEventListener('keydown', e => { if (e.key === 'Enter') applyGasUrl(e.target.value); });
 
 /* --- 6.9 สำรอง / กู้คืน / ล้าง --- */
 $('btnSave').addEventListener('click', () => {
@@ -2086,7 +2105,7 @@ async function gasFetch(opts){
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), SYNC_TIMEOUT_MS);
   try {
-    let url = GAS_URL;
+    let url = gasUrl;
     const init = { method: 'GET', signal: ctrl.signal, redirect: 'follow' };
     if (opts.body){
       init.method = 'POST';
@@ -2114,12 +2133,21 @@ async function gasFetch(opts){
 
 /** ส่งข้อมูลในเครื่องขึ้นส่วนกลาง — ทับเลยเสมอ ไม่ถามอะไร */
 async function syncPush(){
-  const r = await gasFetch({ body: { action:'save', bins: binsToWire(state.bins), meta: state.meta } });
+  const body = { action:'save', bins: binsToWire(state.bins), meta: state.meta };
+  const sent = JSON.stringify([body.bins, body.meta]);   // จำไว้ว่าส่งอะไรไป
+  const r = await gasFetch({ body });
   if (!r || r.ok !== true) throw new Error(gasErrText(r));
-  ui.sync.dirty = false;
   ui.sync.rev = r.dataRev;
   ui.sync.lastAt = nowHm();
-  setSync('ok', 'ซิงก์แล้ว · ' + r.saved + ' จุด · ' + ui.sync.lastAt);
+  // ระหว่างรอ GAS ตอบ ผู้ใช้อาจวาง/ลาก/ลบถังเพิ่ม — ถ้าของในเครื่องไม่ตรงกับที่ส่งไป ห้ามล้างธง
+  // ไม่งั้นถังที่วางช่วงนั้นจะไม่ถูกส่งอีกเลย (บั๊ก iPad 20 จุด / คอม 13 จุด)
+  if (JSON.stringify([binsToWire(state.bins), state.meta]) === sent){
+    ui.sync.dirty = false;
+    setSync('ok', 'ซิงก์แล้ว · ' + r.saved + ' จุด · ' + ui.sync.lastAt);
+  } else {
+    ui.sync.dirty = true;
+    setSync('ok', 'ส่งขึ้นแล้ว ' + r.saved + ' จุด · มีการแก้ระหว่างส่ง จะส่งที่เหลือรอบถัดไป');
+  }
 }
 
 /** ดึงข้อมูลจากส่วนกลางมาแสดง — เปลี่ยนหน้าจอเฉพาะตอนส่วนกลางมีรุ่นใหม่กว่าที่เราเห็น */
@@ -2199,7 +2227,46 @@ async function syncFirstRun(){
   }
 }
 
+/** โหลดลิงก์ GAS ที่เคยวางไว้ในเครื่องนี้ (ไม่มี/ผิดรูปแบบ = ใช้ลิงก์เริ่มต้น) */
+function loadGasUrl(){
+  let saved = '';
+  try { saved = normalizeGasUrl(localStorage.getItem(LS_GAS) || ''); }
+  catch (e) { console.warn('[HAMER] อ่านลิงก์ GAS ในเครื่องไม่ได้', e); }
+  gasUrl = saved || GAS_URL;
+  renderGasUrl();
+}
+
+function renderGasUrl(){
+  $('iGasUrl').value = gasUrl;
+  $('gasUrlNote').textContent = gasUrl === GAS_URL
+    ? 'ตอนนี้ใช้ลิงก์เริ่มต้นที่ฝังในแอป — ทุกเครื่องต่อที่เดียวกันโดยไม่ต้องวาง'
+    : 'เครื่องนี้ใช้ลิงก์ที่วางเอง — เครื่องอื่นต้องวางลิงก์เดียวกันถึงจะเห็นข้อมูลชุดนี้';
+}
+
+/** เปลี่ยนปลายทางซิงก์ แล้วต่อใหม่ทันที (ใช้กติกาเดียวกับตอนเปิดแอป — กันของในเครื่องหาย) */
+function applyGasUrl(raw){
+  const u = normalizeGasUrl(raw);
+  if (!u){
+    setSync('err', 'ลิงก์ไม่ถูกต้อง — ต้องเป็น Web app URL (https://script.google.com/macros/s/…/exec) จากเมนู Deploy ไม่ใช่ลิงก์หน้าแก้โค้ด');
+    return;
+  }
+  if (ui.sync.busy){                 // รอบก่อนยังค้างอยู่ — ห้ามสลับกลางทาง ผลจากปลายทางเก่าจะมาทับ
+    ui.sync.msg = 'กำลังซิงก์รอบก่อนอยู่ — รอสักครู่แล้วกดอีกครั้ง';
+    renderSync();
+    return;
+  }
+  gasUrl = u;
+  try {
+    if (u === GAS_URL) localStorage.removeItem(LS_GAS);
+    else localStorage.setItem(LS_GAS, u);
+  } catch (e) { console.error('[HAMER] บันทึกลิงก์ GAS ไม่สำเร็จ', e); }
+  ui.sync.rev = null;
+  renderGasUrl();
+  syncFirstRun();
+}
+
 function initSync(){
+  loadGasUrl();
   syncFirstRun();
   if (syncTimer) clearInterval(syncTimer);
   syncTimer = setInterval(syncTick, SYNC_MS);
@@ -2734,6 +2801,20 @@ test('docSvg: สำเนา 2d กับ iso ไม่ใช้ id ชนก�
 });
 test('docSvg: ผัง 2 มิติในเอกสารมีกรอบอาคารครบทุกโซน', () => {
   assertEq(docSvgProbe('2d').querySelectorAll('[id$="-zones"] > rect').length >= ZONES.length, true);
+});
+test('normalizeGasUrl: ลิงก์ /exec ถูกต้อง คืนค่าเดิม', () => assertEq(normalizeGasUrl(GAS_URL), GAS_URL));
+test('normalizeGasUrl: ตัดช่องว่าง / query / ทับท้าย ออกให้', () => {
+  assertEq(normalizeGasUrl('  ' + GAS_URL + '/?action=load  '), GAS_URL);
+});
+test('normalizeGasUrl: ลิงก์บัญชี Workspace (a/macros/โดเมน) ใช้ได้', () => {
+  assertTrue(normalizeGasUrl(GAS_URL.replace('/macros/', '/a/macros/example.co.th/')) !== '', 'ควรรับลิงก์ Workspace');
+});
+test('normalizeGasUrl: ค่าว่าง / ลิงก์หน้าแก้โค้ด / /dev / โดเมนอื่น ต้องคืนค่าว่าง', () => {
+  assertEq(normalizeGasUrl(''), '');
+  assertEq(normalizeGasUrl(null), '');
+  assertEq(normalizeGasUrl('https://script.google.com/u/0/home/projects/1tBwjtYkVgqYtTOb8NALqQ76Uz6liU0pIBcGVVha6CExd0PaRlV_D3tnu/edit'), '');
+  assertEq(normalizeGasUrl(GAS_URL.replace(/\/exec$/, '/dev')), '');
+  assertEq(normalizeGasUrl(GAS_URL.replace('script.google.com', 'script.google.com.evil.example')), '');
 });
 
 function runTests(){
