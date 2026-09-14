@@ -285,6 +285,53 @@ button{cursor:pointer; border:0; background:none}
 .stage-badge .pulse{width:7px;height:7px;border-radius:50%;background:var(--copper);flex:0 0 7px}
 .stage-badge.armed{border-color:var(--copper);color:var(--copper)}
 .stage-badge.armed .pulse{animation:pulse 1.5s ease-in-out infinite}
+
+/* ── จุดวางตามแผน: หมุดเลข 1–6 + แผ่นภาพสถานที่จริง (เลื่อนขึ้นจากด้านล่าง) ── */
+.stage-toolbar button[aria-pressed="true"]{color:var(--copper);background:rgba(224,130,90,.14)}
+.plan-sheet{
+  position:fixed;left:50%;bottom:0;z-index:150;width:min(560px,100%);
+  transform:translate(-50%,105%);transition:transform 220ms cubic-bezier(.2,.8,.2,1);
+  background:var(--navy-850);border:1px solid var(--line);border-bottom:0;border-radius:16px 16px 0 0;
+  box-shadow:0 -12px 40px rgba(0,0,0,.55);padding:10px 16px calc(14px + env(safe-area-inset-bottom));
+}
+.plan-sheet.show{transform:translate(-50%,0)}
+.plan-grip{width:40px;height:4px;border-radius:4px;background:var(--line);margin:0 auto 10px}
+.plan-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.plan-no{width:36px;height:36px;flex:0 0 36px;border-radius:50%;display:grid;place-items:center;
+  background:#C0392B;border:2px solid #FFC000;color:#fff;font-weight:700;font-size:16px}
+.plan-hd h3{margin:0;flex:1;font-family:var(--ff-th-disp);font-size:16px;line-height:1.3;color:var(--cream)}
+.plan-hd h3 small{display:block;font-family:'IBM Plex Sans Thai',sans-serif;font-size:12.5px;font-weight:400;color:var(--cream-3)}
+.plan-close{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;color:var(--cream-2)}
+.plan-close:hover{background:rgba(255,255,255,.08);color:var(--cream)}
+.plan-close svg{width:20px;height:20px}
+.plan-photo{position:relative;display:block;width:100%;padding:0;border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;background:#000;cursor:zoom-in}
+.plan-photo img{display:block;width:100%;height:clamp(180px,34vh,300px);object-fit:contain}
+.plan-photo span{position:absolute;right:8px;bottom:8px;padding:4px 9px;border-radius:8px;font-size:12px;background:rgba(8,18,31,.82);color:var(--cream)}
+.plan-photo:disabled{cursor:default}
+.plan-photo img[hidden]{display:none}
+.plan-photo .plan-empty{position:static;display:grid;place-items:center;height:clamp(180px,34vh,300px);padding:16px;
+  border-radius:0;background:transparent;color:var(--cream-3);font-size:13.5px;line-height:1.6;text-align:center}
+.plan-photo .plan-empty[hidden]{display:none}
+.plan-bins{display:flex;gap:8px;margin:12px 0}
+.plan-bin{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 6px;border-radius:10px;
+  border:1px solid var(--line-soft);background:rgba(0,0,0,.22);font-size:12.5px;color:var(--cream-2);white-space:nowrap}
+.plan-bin img{width:16px;height:auto}
+.plan-nav{display:flex;gap:8px}
+.plan-nav .btn{flex:1;min-height:44px}
+.plan-actions{display:flex;gap:8px;margin-bottom:8px}
+.plan-actions .btn{flex:1;min-height:44px;cursor:pointer}
+.plan-attach.is-busy{opacity:.6;pointer-events:none}
+.plan-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}   /* ซ่อนแบบนี้ (ไม่ใช้ display:none) ให้ iPad เปิดกล้อง/คลังรูปผ่าน label ได้ */
+.plan-foot{margin:9px 0 0;font-size:11.5px;color:var(--cream-3);text-align:center;line-height:1.5}
+.plan-lightbox{position:fixed;inset:0;z-index:210;display:none;place-items:center;padding:16px;background:rgba(4,9,16,.94)}
+.plan-lightbox.show{display:grid}
+.plan-lightbox img{width:min(100%,960px);height:auto;max-height:calc(100vh - 96px);border-radius:10px;object-fit:contain}
+.plan-lightbox .btn{position:absolute;top:12px;right:12px;min-width:64px;min-height:44px}
+@media (min-width:1100px){   /* จอกว้าง: เป็นการ์ดมุมขวาล่าง ไม่บังกลางผัง */
+  .plan-sheet{left:auto;right:24px;bottom:24px;width:420px;border-bottom:1px solid var(--line);border-radius:16px;transform:translateY(calc(100% + 48px))}
+  .plan-sheet.show{transform:none}
+}
+@media (prefers-reduced-motion:reduce){.plan-sheet{transition:none}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
 
 .hint3d{
@@ -567,6 +614,9 @@ button{cursor:pointer; border:0; background:none}
             <button id="mDel" aria-pressed="false" title="โหมดลบถัง">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>ลบถัง
             </button>
+            <button id="mSpot" aria-pressed="false" title="กำหนดจุดวางตามแผน + แนบรูปสถานที่จริง">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.9-7-10a7 7 0 1 1 14 0c0 5.1-7 10-7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>กำหนดจุด
+            </button>
           </div>
         </div>
       </section>
@@ -658,6 +708,7 @@ button{cursor:pointer; border:0; background:none}
         <button id="btnZoomOut" title="ย่อ" aria-label="ย่อ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/></svg></button>
         <button id="btnFit" title="พอดีหน้าจอ" aria-label="พอดีหน้าจอ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg></button>
         <button id="btnUndo" title="ย้อนกลับ" aria-label="ย้อนกลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3.5 13a9 9 0 1 0 2.1-5.7L3 10"/></svg></button>
+        <button id="btnPlan" title="จุดวางตามแผน (ภาพสถานที่จริง)" aria-label="แสดงจุดวางตามแผน" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.9-7-10a7 7 0 1 1 14 0c0 5.1-7 10-7 10Z"/><circle cx="12" cy="11" r="2.5"/></svg></button>
       </div>
 
       <!-- 2D -->
@@ -711,6 +762,32 @@ button{cursor:pointer; border:0; background:none}
       </div>
     </section>
   </div>
+</div>
+
+<!-- ═══════════ จุดวางตามแผน — แผ่นภาพสถานที่จริง ═══════════ -->
+<div class="plan-sheet" id="planSheet" role="dialog" aria-modal="false" aria-labelledby="planTitle" aria-hidden="true">
+  <div class="plan-grip"></div>
+  <div class="plan-hd">
+    <span class="plan-no" id="planNoBadge">1</span>
+    <h3 id="planTitle">จุดที่ 1<small id="planZone"></small></h3>
+    <button class="plan-close" id="planClose" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <button class="plan-photo" id="planPhotoBtn" aria-label="ดูภาพสถานที่จริงเต็มจอ"><img id="planImg" alt=""><span class="plan-empty" id="planEmpty" hidden></span><span id="planZoomHint">แตะเพื่อดูเต็มจอ</span></button>
+  <div class="plan-bins" id="planBins"></div>
+  <div class="plan-actions">
+    <label class="btn btn--sm btn--primary plan-attach" id="planAttachLbl" for="planFile">แนบรูป</label>
+    <input type="file" class="plan-file" id="planFile" accept="image/*">
+    <button class="btn btn--sm btn--ghost btn--danger" id="planDelete">ลบจุดนี้</button>
+  </div>
+  <div class="plan-nav">
+    <button class="btn btn--sm btn--ghost" id="planPrev">‹ จุดก่อนหน้า</button>
+    <button class="btn btn--sm btn--ghost" id="planNext">จุดถัดไป ›</button>
+  </div>
+  <p class="plan-foot" id="planFoot"></p>
+</div>
+<div class="plan-lightbox" id="planLightbox" role="dialog" aria-modal="true" aria-label="ภาพสถานที่จริง">
+  <img id="planLightImg" alt="">
+  <button class="btn btn--sm" id="planLightClose">ปิด</button>
 </div>
 
 <!-- ═══════════ MODAL พรีวิวเอกสาร ═══════════ -->
@@ -839,6 +916,7 @@ const ISO_B = 0.5;
 let state = {
   version: SCHEMA_VERSION,
   bins: [],
+  spots: [],               // จุดวางตามแผน { id, no, x, y, photoId, note } — รูปอยู่ใน Google Drive
   seq: 0,
   meta: { docNo:'', preparedBy:'', dept:'', rev:'00', note:'' }
 };
@@ -853,6 +931,9 @@ const ui = {
   drag: null,
   three: null,
   debug: false,
+  showPlan: true,          // แสดงหมุดจุดวางตามแผนบนผัง 2 มิติ
+  planId: null,            // id ของจุดตามแผนที่เปิดแผ่นภาพอยู่
+  armedSpot: false,        // กดปุ่ม "กำหนดจุด" แล้ว รอคลิกตำแหน่งบนผัง
   sync: {
     busy: false,
     status: 'idle',         // 'idle' | 'busy' | 'ok' | 'err'
@@ -884,6 +965,16 @@ function migrate(d){
       no:   typeof b.no === 'number' ? b.no : 0
     }));
   d.meta = Object.assign({ docNo:'', preparedBy:'', dept:'', rev:'00', note:'' }, d.meta || {});
+  // จุดวางตามแผน — ข้อมูลรุ่นก่อนไม่มี = เริ่มว่าง · จุดไม่มีพิกัดทิ้ง · photoId แปลกปลอม = ไม่มีรูป
+  d.spots = (Array.isArray(d.spots) ? d.spots : []).filter(s => s && typeof s.x === 'number' && typeof s.y === 'number')
+    .map(s => ({
+      id:      typeof s.id === 'string' && s.id ? s.id : ('S' + Math.random().toString(36).slice(2, 8)),
+      no:      typeof s.no === 'number' ? s.no : 0,
+      x:       clamp(s.x, 0, WORLD.w),
+      y:       clamp(s.y, 0, WORLD.h),
+      photoId: typeof s.photoId === 'string' && /^[\w-]{10,100}$/.test(s.photoId) ? s.photoId : '',
+      note:    typeof s.note === 'string' ? s.note : ''
+    }));
   d.seq  = Math.max(typeof d.seq === 'number' ? d.seq : 0, ...d.bins.map(b => b.no || 0), 0);
   d.version = SCHEMA_VERSION;
   return d;
@@ -1073,11 +1164,29 @@ function binsToWire(bins){
   }));
 }
 
+/** แปลงจุดวางตามแผนเป็นรูปแบบที่ backend รับ เรียงตามเลขจุด (pure) */
+function spotsToWire(spots){
+  return [...(spots || [])].sort((a, b) => a.no - b.no).map(s => ({
+    no: s.no, id: s.id,
+    x: Math.round(s.x * 100) / 100,
+    y: Math.round(s.y * 100) / 100,
+    photoId: s.photoId || '', note: s.note || ''
+  }));
+}
+
+/** ขนาดรูปหลังย่อให้ด้านยาวไม่เกิน max (pure) — ไม่ขยายรูปเล็ก · ขนาดเสีย = 0 */
+function fitSize(w, h, max){
+  if (!(w > 0) || !(h > 0)) return { w: 0, h: 0 };
+  const k = Math.min(1, max / Math.max(w, h));
+  return { w: Math.round(w * k), h: Math.round(h * k) };
+}
+
 /** สร้าง state ชุดใหม่จากข้อมูลส่วนกลาง (pure) — ผ่าน migrate เพื่อกรองของแปลกปลอมออก */
 function stateFromRemote(payload){
   return migrate({
     version: SCHEMA_VERSION,
     bins: (payload && payload.bins) || [],
+    spots: (payload && payload.spots) || [],
     seq: 0,
     meta: (payload && payload.meta) || {}
   });
@@ -1102,7 +1211,12 @@ function gasErrText(r){
     NO_BODY:        'ส่งข้อมูลไปไม่ครบ',
     BAD_JSON:       'รูปแบบข้อมูลที่ส่งไปผิด',
     UNKNOWN_ACTION: 'ปลายทางไม่รู้จักคำสั่งนี้ (โค้ด GAS อาจเป็นเวอร์ชันเก่า)',
-    SERVER_ERROR:   'ฝั่ง Apps Script มีข้อผิดพลาด'
+    SERVER_ERROR:   'ฝั่ง Apps Script มีข้อผิดพลาด',
+    TOO_MANY_SPOTS: 'จุดวางตามแผนเกินจำนวนที่ฝั่งเซิร์ฟเวอร์กำหนด (100 จุด)',
+    BAD_IMAGE:      'ไฟล์ที่เลือกไม่ใช่รูปภาพที่รองรับ',
+    PHOTO_TOO_LARGE:'รูปใหญ่เกินไป',
+    BAD_PHOTO_ID:   'รหัสรูปไม่ถูกต้อง',
+    PHOTO_NOT_FOUND:'ไม่พบรูปใน Google Drive (อาจถูกลบ)'
   };
   return m[r.error] || r.message || r.error || 'ไม่ทราบสาเหตุ';
 }
@@ -1132,6 +1246,7 @@ function renderAll(){
   sync3D();
   renderInspector();
   renderBadge();
+  syncPlanSheet();
   renderDebug();
 }
 
@@ -1192,6 +1307,9 @@ function renderBadge(){
   if (ui.armedType){
     badge.classList.add('armed');
     txt.textContent = 'กำลังวาง: ' + TYPE_MAP[ui.armedType].label + ' — คลิกตำแหน่งบนแผนผัง';
+  } else if (ui.armedSpot){
+    badge.classList.add('armed');
+    txt.textContent = 'กำลังกำหนดจุด — คลิกตำแหน่งบนแผนผัง 2 มิติ';
   } else if (ui.mode === 'delete'){
     badge.classList.add('armed');
     txt.textContent = 'โหมดลบ — คลิกถังที่ต้องการลบ';
@@ -1199,7 +1317,7 @@ function renderBadge(){
     badge.classList.remove('armed');
     txt.textContent = 'โหมดเลือก — คลิกถังเพื่อแก้ไข · ลากเพื่อย้าย';
   }
-  const placing = !!ui.armedType;
+  const placing = !!ui.armedType || ui.armedSpot;
   $('svg2d').classList.toggle('placing', placing);
   $('svgIso').classList.toggle('placing', placing);
 }
@@ -1287,6 +1405,9 @@ function render2D(){
 
   // ── เข็มทิศ + สเกล
   s += compassSvg(1910, 150) + scaleBarSvg(140, 1035);
+
+  // ── จุดวางตามแผน (เดย์กำหนดเองด้วยปุ่ม "กำหนดจุด") — แตะเพื่อดู/แนบภาพสถานที่จริง
+  if (ui.showPlan) s += `<g id="plan2d" class="plan-layer">${sortedSpots().map(planSpot2d).join('')}</g>`;
 
   // ── ถังขยะ
   s += `<g id="pins2d">`;
@@ -1578,6 +1699,7 @@ $('binTools').addEventListener('click', e => {
   const btn = e.target.closest('.bintool'); if (!btn) return;
   const t = btn.dataset.type;
   ui.armedType = (ui.armedType === t) ? null : t;
+  ui.armedSpot = false;
   if (ui.armedType) ui.mode = 'select';
   syncModeButtons(); renderAll();
 });
@@ -1585,9 +1707,10 @@ $('binTools').addEventListener('click', e => {
 function syncModeButtons(){
   $('mDrag').setAttribute('aria-pressed', String(ui.mode === 'select'));
   $('mDel').setAttribute('aria-pressed',  String(ui.mode === 'delete'));
+  $('mSpot').setAttribute('aria-pressed', String(!!ui.armedSpot));
 }
-$('mDrag').addEventListener('click', () => { ui.mode = 'select'; syncModeButtons(); renderAll(); });
-$('mDel').addEventListener('click', () => { ui.mode = 'delete'; ui.armedType = null; syncModeButtons(); renderAll(); });
+$('mDrag').addEventListener('click', () => { ui.mode = 'select'; ui.armedSpot = false; syncModeButtons(); renderAll(); });
+$('mDel').addEventListener('click', () => { ui.mode = 'delete'; ui.armedType = null; ui.armedSpot = false; syncModeButtons(); renderAll(); });
 
 $('pointList').addEventListener('click', e => {
   const btn = e.target.closest('.point'); if (!btn) return;
@@ -1609,7 +1732,7 @@ $('btnGoIso').addEventListener('click', () => setView('iso'));
 
 /* --- 6.4 การโต้ตอบบน SVG (2D + ISO) --- */
 function bindSvg(svg, key){
-  let moved = false, downPt = null, panStart = null, dragBin = null, delId = null;
+  let moved = false, downPt = null, panStart = null, dragBin = null, delId = null, planHit = null;
 
   svg.addEventListener('pointerdown', e => {
     if (e.button === 2) return;
@@ -1619,6 +1742,8 @@ function bindSvg(svg, key){
     const pinEl = e.target.closest('.pin');
     const delEl = e.target.closest('.pin-del');   // ปุ่ม × ลบด่วน บนถังที่เลือก
     delId = delEl ? delEl.dataset.id : null;       // จำไว้ก่อน — ตอน pointerup เป้าหมายจะกลายเป็น svg (setPointerCapture)
+    const planEl = e.target.closest('.plan-spot'); // หมุดจุดวางตามแผน — ยังเลื่อนผังได้ตามปกติ แตะแล้วปล่อยค่อยเปิดภาพ
+    planHit = planEl ? planEl.dataset.id : null;
 
     if (delEl){
       // แตะ × — ไม่เลือก ไม่ลาก ไม่เลื่อนผัง รอลบตอนปล่อยนิ้ว
@@ -1656,13 +1781,22 @@ function bindSvg(svg, key){
 
   svg.addEventListener('pointerup', e => {
     svg.classList.remove('dragging');
-    const wasDrag = dragBin, wasMoved = moved, wasDel = delId;
+    const wasDrag = dragBin, wasMoved = moved, wasDel = delId, wasPlan = planHit;
     if (dragBin && moved){ pushHistoryDebounced(); save(); }
-    dragBin = null; panStart = null; downPt = null; delId = null;
+    dragBin = null; panStart = null; downPt = null; delId = null; planHit = null;
 
     if (wasDel && !wasMoved){ deleteBin(wasDel); renderDebug(); return; }   // แตะ × แล้วปล่อยที่เดิม = ลบทันที (กด Ctrl+Z ย้อนได้)
 
     if (wasMoved) { renderDebug(); return; }
+
+    // กดปุ่ม "กำหนดจุด" แล้วแตะผัง 2 มิติ = วางหมุดใหม่ 1 จุด แล้วเปิดแผ่นให้แนบรูป
+    if (ui.armedSpot && key === '2d' && !wasDrag){
+      const p = screenToWorld(svg, e); if (!p) return;
+      addSpotAt(p.x, p.y);
+      return;
+    }
+    // แตะหมุดเลขตามแผน = เปิดภาพสถานที่จริง (ถ้ากำลังถือถังจะวาง ให้วางตรงนั้นตามปกติ)
+    if (wasPlan && key === '2d' && ui.mode === 'select' && !ui.armedType){ openPlan(wasPlan); return; }
 
     const pinEl = e.target.closest('.pin');
     if (pinEl){
@@ -1767,6 +1901,212 @@ $('btnGasSave').addEventListener('click', () => applyGasUrl($('iGasUrl').value))
 $('btnGasReset').addEventListener('click', () => applyGasUrl(GAS_URL));
 $('iGasUrl').addEventListener('keydown', e => { if (e.key === 'Enter') applyGasUrl(e.target.value); });
 
+/* --- 6.8b จุดวางตามแผน: หมุดเลข + แผ่นภาพสถานที่จริง --- */
+function sortedSpots(){ return [...(state.spots || [])].sort((a, b) => a.no - b.no); }
+
+function planSpot2d(sp){
+  const on = ui.planId === sp.id;
+  return `<g class="plan-spot" data-id="${esc(sp.id)}" style="cursor:pointer"><title>จุดที่ ${sp.no} — แตะเพื่อดู/แนบภาพสถานที่จริง</title>
+    ${on ? `<circle cx="${sp.x}" cy="${sp.y}" r="40" fill="none" stroke="#FFC000" stroke-width="3" stroke-dasharray="8 6"/>` : ''}
+    <circle cx="${sp.x}" cy="${sp.y}" r="30" fill="transparent"/>
+    <circle cx="${sp.x}" cy="${sp.y}" r="21" fill="rgba(192,57,43,.92)" stroke="#FFC000" stroke-width="3"/>
+    <text x="${sp.x}" y="${sp.y + 8}" fill="#FFFFFF" font-size="22" font-weight="700" text-anchor="middle" font-family="'IBM Plex Sans Thai',sans-serif">${sp.no}</text>
+  </g>`;
+}
+
+const photoCache = {};          // photoId → data URL (ดึงจาก Drive ครั้งเดียวต่อการเปิดหน้า)
+const photoLoading = {};        // photoId → true ระหว่างดึงรูป
+const photoFailed = {};         // photoId → true ถ้าดึงไม่สำเร็จ (กันยิงซ้ำวนไม่รู้จบ — เปิดแผ่นใหม่ = ลองอีกครั้ง)
+let uploadingSpotId = null;     // จุดที่กำลังอัปโหลดรูป (กันกดแนบซ้ำ)
+let planMsg = '';               // ข้อความสถานะท้ายแผ่น (แนบรูปสำเร็จ/ไม่สำเร็จ)
+
+/** กดปุ่ม "กำหนดจุด" แล้วแตะผัง → เพิ่มหมุดเลขถัดไป 1 จุด แล้วเปิดแผ่นให้แนบรูป */
+function addSpotAt(x, y){
+  if (x < 0 || y < 0 || x > WORLD.w || y > WORLD.h) return;
+  if (state.spots.length >= 100){ alert('จุดวางตามแผนครบ 100 จุดแล้ว'); return; }   // เพดานเดียวกับฝั่ง GAS
+  const no = state.spots.reduce((m, s) => Math.max(m, s.no || 0), 0) + 1;
+  const sp = { id: 'S' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), no,
+    x: Math.round(x * 100) / 100, y: Math.round(y * 100) / 100, photoId: '', note: '' };
+  state.spots.push(sp);
+  ui.armedSpot = false;
+  ui.showPlan = true;
+  $('btnPlan').setAttribute('aria-pressed', 'true');
+  save();
+  syncModeButtons(); renderAll();
+  openPlan(sp.id);
+}
+
+function renderPlanSheet(){
+  const list = sortedSpots();
+  const sp = list.find(s => s.id === ui.planId);
+  if (!sp) return;
+  const src = sp.photoId ? photoCache[sp.photoId] : '';
+  $('planNoBadge').textContent = sp.no;
+  $('planTitle').firstChild.textContent = 'จุดที่ ' + sp.no + ' จาก ' + list.length;
+  $('planZone').textContent = zoneLabel(sp.x, sp.y);
+  const img = $('planImg');
+  if (src){ img.src = src; img.hidden = false; } else { img.removeAttribute('src'); img.hidden = true; }
+  img.alt = 'ภาพสถานที่จริง จุดที่ ' + sp.no;
+  $('planPhotoBtn').disabled = !src;
+  $('planZoomHint').hidden = !src;
+  $('planEmpty').hidden = !!src;
+  $('planEmpty').textContent = uploadingSpotId === sp.id ? 'กำลังอัปโหลดรูป…'
+    : !sp.photoId ? 'ยังไม่มีรูป — กด “แนบรูป” เพื่อถ่ายหรือเลือกรูป'
+    : photoFailed[sp.photoId] ? 'โหลดรูปไม่สำเร็จ — ปิดแล้วเปิดจุดนี้ใหม่เพื่อลองอีกครั้ง'
+    : 'กำลังโหลดรูปจาก Google Drive…';
+  $('planAttachLbl').textContent = uploadingSpotId ? 'กำลังอัปโหลด…' : (sp.photoId ? 'เปลี่ยนรูป' : 'แนบรูป');
+  $('planAttachLbl').classList.toggle('is-busy', !!uploadingSpotId);
+  $('planFile').disabled = !!uploadingSpotId;
+  $('planBins').innerHTML = BIN_TYPES.map(t =>
+    `<span class="plan-bin"><img src="${BIN_IMG[t.id]}" alt="">${esc(t.label)}</span>`).join('');
+  $('planFoot').textContent = 'ทั้งหมด ' + list.length + ' จุด' + (planMsg ? ' · ' + planMsg : '');
+  $('planPrev').disabled = $('planNext').disabled = list.length < 2;
+  if (sp.photoId && !src && !photoLoading[sp.photoId] && !photoFailed[sp.photoId]) loadSpotPhoto(sp.photoId);
+}
+
+/** ดึงรูปจาก Drive ผ่าน GAS (?action=photo) แล้วเก็บไว้ในหน่วยความจำ */
+async function loadSpotPhoto(photoId){
+  photoLoading[photoId] = true;
+  try {
+    const r = await gasFetch({ action: 'photo', params: { id: photoId }, timeout: 60000 });
+    if (!r || r.ok !== true || typeof r.dataUrl !== 'string') throw new Error(gasErrText(r));
+    photoCache[photoId] = r.dataUrl;
+  } catch (e) {
+    photoFailed[photoId] = true;
+    console.warn('[HAMER] โหลดรูปจุดตามแผนไม่สำเร็จ', photoId, e);
+  } finally {
+    photoLoading[photoId] = false;
+    if ($('planSheet').classList.contains('show')) renderPlanSheet();
+  }
+}
+
+/** ย่อรูปที่ถ่าย/เลือก ให้ด้านยาวไม่เกิน 1600px แล้วแปลงเป็น JPEG — รูปมือถือหลาย MB เหลือไม่กี่ร้อย KB */
+function resizeImageFile(file, max = 1600, quality = 0.82){
+  return new Promise((resolve, reject) => {
+    if (!file || (file.type && !/^image\//.test(file.type))){ reject(new Error('ไฟล์ที่เลือกไม่ใช่รูปภาพ')); return; }
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const s = fitSize(img.naturalWidth, img.naturalHeight, max);
+      if (!s.w){ reject(new Error('อ่านขนาดรูปไม่ได้')); return; }
+      const c = document.createElement('canvas');
+      c.width = s.w; c.height = s.h;
+      const g = c.getContext('2d');
+      g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, s.w, s.h);   // รูป PNG โปร่งใส → พื้นขาว
+      g.drawImage(img, 0, 0, s.w, s.h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('เปิดรูปนี้ไม่ได้ (รูปแบบไฟล์อาจไม่รองรับ)')); };
+    img.src = url;
+  });
+}
+
+/** แนบรูปให้จุดที่เปิดอยู่: ย่อ → อัปโหลดเข้า Drive → จำ photoId → ซิงก์ */
+async function attachPhoto(file){
+  const sp = state.spots.find(s => s.id === ui.planId);
+  if (!sp || !file || uploadingSpotId) return;
+  const sid = sp.id;
+  uploadingSpotId = sid; planMsg = '';
+  renderPlanSheet();
+  try {
+    const dataUrl = await resizeImageFile(file);
+    const r = await gasFetch({ body: { action: 'uploadPhoto', spotId: sid, dataUrl }, timeout: 120000 });
+    if (!r || r.ok !== true || !r.photoId) throw new Error(gasErrText(r));
+    photoCache[r.photoId] = dataUrl;
+    const cur = state.spots.find(s => s.id === sid);
+    if (cur){ cur.photoId = r.photoId; save(); planMsg = 'บันทึกรูปแล้ว'; }
+    else planMsg = 'จุดนี้ถูกลบระหว่างอัปโหลด — รูปยังเก็บอยู่ใน Drive';
+  } catch (e) {
+    planMsg = 'แนบรูปไม่สำเร็จ: ' + e.message;
+  } finally {
+    uploadingSpotId = null;
+    if ($('planSheet').classList.contains('show')) renderPlanSheet();
+    render2D();
+  }
+}
+
+/** ลบจุด (ถามก่อน) — รูปใน Drive ไม่ลบ กู้คืนได้ */
+function deleteSpot(id){
+  const sp = state.spots.find(s => s.id === id);
+  if (!sp) return;
+  if (!confirm('ลบจุดที่ ' + sp.no + ' ออกจากผัง?\n(รูปใน Google Drive ยังเก็บไว้ ไม่ถูกลบ)')) return;
+  state.spots = state.spots.filter(s => s.id !== id);
+  save();
+  closePlan();
+  renderAll();
+}
+
+function openPlan(id){
+  const sp = state.spots.find(s => s.id === id);
+  if (!sp) return;
+  if (ui.planId !== id) planMsg = '';
+  ui.planId = id;
+  if (sp.photoId) delete photoFailed[sp.photoId];   // เปิดจุดนี้ใหม่ = ลองโหลดรูปอีกครั้ง
+  renderPlanSheet();
+  $('planSheet').classList.add('show');
+  $('planSheet').setAttribute('aria-hidden', 'false');
+  render2D();
+}
+
+function stepPlan(d){
+  const list = sortedSpots();
+  if (!list.length) return;
+  const i = list.findIndex(s => s.id === ui.planId);
+  const n = list.length;
+  openPlan(list[((i < 0 ? 0 : i) + d + n) % n].id);   // วนรอบ ท้ายสุด → จุดแรก และกลับกัน
+}
+
+function closePlan(){
+  closePlanLight();
+  ui.planId = null;
+  planMsg = '';
+  $('planSheet').classList.remove('show');
+  $('planSheet').setAttribute('aria-hidden', 'true');
+  render2D();
+}
+
+/** ข้อมูลเปลี่ยน (ซิงก์จากเครื่องอื่น/ลบ) ระหว่างเปิดแผ่นอยู่ — จุดหายแล้วปิด ยังอยู่วาดใหม่ */
+function syncPlanSheet(){
+  if (!ui.planId) return;
+  if (!state.spots.some(s => s.id === ui.planId)) closePlan();
+  else renderPlanSheet();
+}
+
+function openPlanLight(){
+  const sp = state.spots.find(s => s.id === ui.planId);
+  const src = sp && sp.photoId ? photoCache[sp.photoId] : '';
+  if (!src) return;
+  $('planLightImg').src = src;
+  $('planLightImg').alt = 'ภาพสถานที่จริง จุดที่ ' + sp.no;
+  $('planLightbox').classList.add('show');
+  $('planLightClose').focus();
+}
+function closePlanLight(){ $('planLightbox').classList.remove('show'); }
+
+$('mSpot').addEventListener('click', () => {
+  ui.armedSpot = !ui.armedSpot;
+  if (ui.armedSpot){ ui.armedType = null; ui.mode = 'select'; setView('2d'); }
+  syncModeButtons(); renderAll();
+});
+$('btnPlan').addEventListener('click', () => {
+  ui.showPlan = !ui.showPlan;
+  $('btnPlan').setAttribute('aria-pressed', String(ui.showPlan));
+  if (!ui.showPlan && ui.planId) closePlan(); else render2D();
+});
+$('planFile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = '';                       // เลือกรูปเดิมซ้ำได้
+  attachPhoto(f);
+});
+$('planDelete').addEventListener('click', () => { if (ui.planId) deleteSpot(ui.planId); });
+$('planClose').addEventListener('click', closePlan);
+$('planPrev').addEventListener('click', () => stepPlan(-1));
+$('planNext').addEventListener('click', () => stepPlan(1));
+$('planPhotoBtn').addEventListener('click', openPlanLight);
+$('planLightClose').addEventListener('click', closePlanLight);
+$('planLightbox').addEventListener('click', e => { if (e.target === $('planLightbox')) closePlanLight(); });
+
 /* --- 6.9 สำรอง / กู้คืน / ล้าง --- */
 $('btnSave').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' });
@@ -1807,8 +2147,11 @@ $('btnClear').addEventListener('click', () => {
 document.addEventListener('keydown', e => {
   if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
   if (e.key === 'Escape'){
-    if ($('modal').classList.contains('show')) closeModal();
+    if ($('planLightbox').classList.contains('show')) closePlanLight();
+    else if ($('planSheet').classList.contains('show')) closePlan();
+    else if ($('modal').classList.contains('show')) closeModal();
     else if (ui.armedType){ ui.armedType = null; renderAll(); }
+    else if (ui.armedSpot){ ui.armedSpot = false; syncModeButtons(); renderAll(); }
     else if (ui.selectedId){ ui.selectedId = null; renderAll(); }
   }
   if ((e.key === 'Delete' || e.key === 'Backspace') && ui.selectedId){ e.preventDefault(); deleteBin(ui.selectedId); }
@@ -2115,7 +2458,8 @@ window.addEventListener('three-failed', () => { $('fallback3d').classList.add('s
 /** เรียก GAS — GET ใช้ query string, POST ห้ามใส่ header Content-Type (จะโดน CORS preflight) */
 async function gasFetch(opts){
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), SYNC_TIMEOUT_MS);
+  const timeoutMs = opts.timeout || SYNC_TIMEOUT_MS;   // อัปโหลด/ดึงรูปใช้เวลานานกว่าซิงก์ปกติ
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     let url = gasUrl;
     const init = { method: 'GET', signal: ctrl.signal, redirect: 'follow' };
@@ -2124,6 +2468,7 @@ async function gasFetch(opts){
       init.body = JSON.stringify(opts.body);   // ไม่ตั้ง Content-Type โดยเจตนา → ได้ text/plain = simple request
     } else {
       url += (url.indexOf('?') >= 0 ? '&' : '?') + 'action=' + encodeURIComponent(opts.action || 'ping');
+      for (const [k, v] of Object.entries(opts.params || {})) url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(v);
     }
     const res = await fetch(url, init);
     const text = await res.text();
@@ -2135,7 +2480,7 @@ async function gasFetch(opts){
       throw new Error('ข้อมูลที่ได้กลับมาไม่ใช่ JSON');
     }
   } catch (e) {
-    if (e && e.name === 'AbortError') throw new Error('หมดเวลารอ ' + (SYNC_TIMEOUT_MS / 1000) + ' วินาที');
+    if (e && e.name === 'AbortError') throw new Error('หมดเวลารอ ' + (timeoutMs / 1000) + ' วินาที');
     if (e instanceof TypeError) throw new Error('ต่ออินเทอร์เน็ตไม่ได้');
     throw e;
   } finally {
@@ -2145,15 +2490,15 @@ async function gasFetch(opts){
 
 /** ส่งข้อมูลในเครื่องขึ้นส่วนกลาง — ทับเลยเสมอ ไม่ถามอะไร */
 async function syncPush(){
-  const body = { action:'save', bins: binsToWire(state.bins), meta: state.meta };
-  const sent = JSON.stringify([body.bins, body.meta]);   // จำไว้ว่าส่งอะไรไป
+  const body = { action:'save', bins: binsToWire(state.bins), meta: state.meta, spots: spotsToWire(state.spots) };
+  const sent = JSON.stringify([body.bins, body.meta, body.spots]);   // จำไว้ว่าส่งอะไรไป
   const r = await gasFetch({ body });
   if (!r || r.ok !== true) throw new Error(gasErrText(r));
   ui.sync.rev = r.dataRev;
   ui.sync.lastAt = nowHm();
   // ระหว่างรอ GAS ตอบ ผู้ใช้อาจวาง/ลาก/ลบถังเพิ่ม — ถ้าของในเครื่องไม่ตรงกับที่ส่งไป ห้ามล้างธง
   // ไม่งั้นถังที่วางช่วงนั้นจะไม่ถูกส่งอีกเลย (บั๊ก iPad 20 จุด / คอม 13 จุด)
-  if (JSON.stringify([binsToWire(state.bins), state.meta]) === sent){
+  if (JSON.stringify([binsToWire(state.bins), state.meta, spotsToWire(state.spots)]) === sent){
     ui.sync.dirty = false;
     setSync('ok', 'ซิงก์แล้ว · ' + r.saved + ' จุด · ' + ui.sync.lastAt);
   } else {
@@ -2181,6 +2526,7 @@ async function syncPull(){
   }
   const ns = stateFromRemote(r);
   if (!ns) throw new Error('ข้อมูลจากส่วนกลางผิดรูปแบบ');
+  if (!Array.isArray(r.spots)) ns.spots = state.spots;   // GAS รุ่นเก่ายังไม่ส่ง spots → คงจุดในเครื่องไว้ ไม่ล้างทิ้ง
 
   state = ns;
   ui.sync.rev = r.dataRev;
@@ -2219,9 +2565,9 @@ async function syncFirstRun(){
   try {
     const r = await gasFetch({ action:'load' });
     if (!r || r.ok !== true) throw new Error(gasErrText(r));
-    const remote = (r.bins || []).length;
+    const remote = (r.bins || []).length + (Array.isArray(r.spots) ? r.spots.length : 0);
 
-    if (state.bins.length && remote === 0){
+    if ((state.bins.length || state.spots.length) && remote === 0){
       ui.sync.busy = false;
       ui.sync.dirty = true;
       await syncTick();
@@ -2328,6 +2674,7 @@ function docSvg(kind){
   });
   clone.querySelectorAll('[filter]').forEach(el => el.removeAttribute('filter'));
   clone.querySelectorAll('.pin-del').forEach(el => el.remove());   // ปุ่ม × ลบด่วนมีไว้บนหน้าจอเท่านั้น ไม่ต้องไปอยู่ในเอกสาร
+  clone.querySelectorAll('.plan-layer').forEach(el => el.remove()); // หมุดจุดตามแผนมีไว้ดูภาพบนหน้าจอ — เอกสาร/PDF คงเดิม
 
   /* ── ชั้นที่ 3: ไม่เหลือ url(#..) เลยแม้แต่ตัวเดียว ──
    * เคสที่เดย์เจอ: ค้างแท็บ 3 มิติ (ทำให้ #view-2d ถูกซ่อน) แล้วส่งออก PDF → กรอบอาคารหาย
@@ -2845,6 +3192,60 @@ test('docSvg: ปุ่ม × บนหน้าจอต้องไม่ต�
   $('svg2d').appendChild(fake);
   try { assertEq(docSvgProbe('2d').querySelectorAll('.pin-del').length, 0); }
   finally { fake.remove(); }
+});
+test('migrate: ข้อมูลเก่าไม่มี spots → [] · จุดเสียถูกกรอง · photoId แปลกปลอม → ว่าง', () => {
+  assertEq(migrate({ version: 1, bins: [], seq: 0, meta: {} }).spots, []);
+  const d = migrate({ version: 1, bins: [], seq: 0, meta: {}, spots: [
+    { id:'S1', no:1, x:10, y:20, photoId:'../x' }, { x:'a', y:1 }, null,
+    { id:'S2', no:2, x:99999, y:5, photoId:'1AbCdEfGhIjKlMnOp' } ] });
+  assertEq(d.spots.length, 2);
+  assertEq(d.spots[0].photoId, '');
+  assertEq(d.spots[1].x, WORLD.w);
+  assertEq(d.spots[1].photoId, '1AbCdEfGhIjKlMnOp');
+});
+test('spotsToWire: เรียงตามเลขจุด ปัดพิกัด 2 ตำแหน่ง คง photoId', () => {
+  const w = spotsToWire([{ id:'B', no:2, x:1.005, y:2, photoId:'', note:'' }, { id:'A', no:1, x:3.14159, y:4, photoId:'1AbCdEfGhIjKlMnOp', note:'n' }]);
+  assertEq(w.map(s => s.id), ['A', 'B']);
+  assertEq(w[0].x, 3.14);
+  assertEq(w[0].photoId, '1AbCdEfGhIjKlMnOp');
+});
+test('stateFromRemote: รับ spots จากส่วนกลาง', () => {
+  assertEq(stateFromRemote({ bins: [], meta: {}, spots: [{ id:'S9', no:9, x:100, y:200, photoId:'', note:'' }] }).spots.map(s => s.id), ['S9']);
+});
+test('fitSize: ย่อด้านยาวไม่เกินกำหนด · ไม่ขยายรูปเล็ก · ค่าเสีย → 0', () => {
+  assertEq(fitSize(4032, 3024, 1600), { w: 1600, h: 1200 });
+  assertEq(fitSize(3024, 4032, 1600), { w: 1200, h: 1600 });
+  assertEq(fitSize(800, 600, 1600), { w: 800, h: 600 });
+  assertEq(fitSize(0, 600, 1600), { w: 0, h: 0 });
+  assertEq(fitSize(NaN, 600, 1600), { w: 0, h: 0 });
+});
+test('render2D: หมุดมาจาก state.spots · ปิดหมุด = ไม่มี · PDF ไม่มีหมุด', () => {
+  const keepSpots = state.spots, keepShow = ui.showPlan;
+  try {
+    state.spots = [{ id:'St1', no:1, x:300, y:300, photoId:'', note:'' }, { id:'St2', no:2, x:600, y:300, photoId:'', note:'' }];
+    ui.showPlan = true; render2D();
+    assertEq($('svg2d').querySelectorAll('.plan-spot').length, 2);
+    assertEq(docSvgProbe('2d').querySelectorAll('.plan-spot').length, 0);
+    ui.showPlan = false; render2D();
+    assertEq($('svg2d').querySelectorAll('.plan-spot').length, 0);
+  } finally { state.spots = keepSpots; ui.showPlan = keepShow; render2D(); }
+});
+test('แผ่นจุดตามแผน: เปิด / ยังไม่มีรูป / ถัดไป / วนรอบ / ปิด', () => {
+  const keepSpots = state.spots, keepId = ui.planId;
+  try {
+    state.spots = [{ id:'St1', no:1, x:300, y:300, photoId:'', note:'' }, { id:'St2', no:2, x:600, y:300, photoId:'', note:'' }, { id:'St3', no:3, x:900, y:300, photoId:'', note:'' }];
+    openPlan('St2');
+    assertTrue($('planSheet').classList.contains('show'), 'แผ่นต้องเปิด');
+    assertTrue($('planTitle').textContent.startsWith('จุดที่ 2 จาก 3'), 'หัวข้อผิด: ' + $('planTitle').textContent);
+    assertTrue(!$('planEmpty').hidden && $('planImg').hidden, 'ยังไม่มีรูป ต้องขึ้นข้อความแทนรูป');
+    assertEq($('planAttachLbl').textContent, 'แนบรูป');
+    stepPlan(1); assertEq(ui.planId, 'St3');
+    stepPlan(1); assertEq(ui.planId, 'St1');
+    stepPlan(-1); assertEq(ui.planId, 'St3');
+    openPlan('ไม่มีจริง'); assertEq(ui.planId, 'St3');
+    closePlan(); assertEq(ui.planId, null);
+    assertTrue(!$('planSheet').classList.contains('show'), 'แผ่นต้องปิด');
+  } finally { state.spots = keepSpots; if (keepId) openPlan(keepId); else closePlan(); }
 });
 
 function runTests(){
